@@ -19,7 +19,7 @@ Se [here](https://learn.hashicorp.com/collections/terraform/providers) for the g
 [Golang installation guide](https://golang.org/doc/install)
 
 ## Install terraform
-[Install terraform](https://learn.hashicorp.com/terraform/getting-started/install.html).For windows you can add terraform.exe to {user}/bin.Make sure %USERPROFILE%\go\bin is in path, and above the go-spesific paths.
+[Install terraform](https://learn.hashicorp.com/terraform/getting-started/install.html).For windows you can add terraform.exe to {user}/bin. Make sure %USERPROFILE%\go\bin is in path, and above the go-spesific paths.
 
 ## Checkout code
 Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
