@@ -1,0 +1,11 @@
+terraform-provider-elvid
+terraform-provider-elvid.exe
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+log.txt
+terraform.txt
+log_response.txt
+.terraform/
+terraform-tester/crash.log
+terraform-tester/custom-log.text
