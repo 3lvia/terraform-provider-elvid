@@ -12,7 +12,7 @@ To implement this in your IdentityServer solution you also need to create the AP
 
 # General information about creating a custom terraform provider
 
-Se [here](https://learn.hashicorp.com/collections/terraform/providers) for the general information about creating custom providers from Terraform 
+Se [here](https://learn.hashicorp.com/collections/terraform/providers) for the general information about creating custom providers from Terraform.
 
 # Local Setup
 ## Install go
@@ -60,6 +60,8 @@ terraform_sp_client_id = "replaceme"
 terraform_sp_client_secret = "replaceme"
 tenant_id = "replaceme"
 ```
+
+Note that terraform.tfvars is added to .gitignore. Make sure to newer publish these secrets. This is a public repository.
 
 ## Running terraform locally
 
