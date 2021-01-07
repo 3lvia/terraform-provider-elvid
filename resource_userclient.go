@@ -207,6 +207,7 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("access_token_life_time", userClient.AccessTokenLifetime)
 	d.Set("always_include_user_claims_in_id_token", userClient.AlwaysIncludeUserClaimsInIdToken)
 	d.Set("client_name_language_key", userClient.ClientNameLanguageKey)
+	d.Set("client_name", userClient.ClientName)
 	d.Set("allow_use_of_refresh_tokens", userClient.AllowUseOfRefreshTokens)
 	d.Set("one_time_usage_for_refresh_tokens", userClient.OneTimeUsageForRefreshTokens)
 	d.Set("refresh_token_life_time", userClient.RefreshTokensLifeTime)
