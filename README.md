@@ -115,7 +115,7 @@ Copy-Item "C:\3lvia\terraform-plugins\linux_amd64\terraform-provider-elvid_v$env
 Follow the README in terraform-plugins to finish publishing there.
 
 # Notes from creating a custom provider
-* Creating a class-library to wrap the api was helpful, to get more clean resource-code. I was benefitial to have it in the same repo. 
+* Creating a class-library to wrap the api was helpful, to get more clean resource-code. It was benefitial to have it in the same repo. 
 * The code must be in {GOPATH}\src\github.com\3lvia
 * Filename resources must be in format resource_{resourcename}.go
 * Creating a "resource_taint_version" variable with ForceNew=true was very helpfull to quickly test changes, and will be helpfull in actual use as well. 
