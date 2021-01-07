@@ -92,6 +92,9 @@ ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
 # Publish a new release
 ## Publish to terraform registry
 Work in progress
+Files related to release:
+.github/workflows/release.yml
+.goreleaser.yml
 
 ## Publish to terraform-plugins (The old method without terraform registry for terraform <= 0.12)
 For terraform 12 we can't read from terraform registry, instead we have a repo (terraform-plugins) where we publish the compiled binaries.
