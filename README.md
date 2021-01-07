@@ -2,6 +2,8 @@
 
 This custom terraform provider is used to manage resources for ElvID, which is an Elvia application that uses IdentityServer.
 
+The provider is published to [registry.terraform.io/providers/3lvia/elvid](https://registry.terraform.io/providers/3lvia/elvid/latest).
+
 It can be used to manage machineclients (client_credentials/password) and userclients (authorication code), along with ClientSecrets for these clients.
 It uses Azure AD service principal for authentication, and on the API side we requre a specific scope for authorization.
 
@@ -91,7 +93,8 @@ ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
 ```
 # Publish a new release
 ## Publish to terraform registry
-Create a new github-release in this repo to automatically create a new release with github-actions.
+To publish to [registry.terraform.io/providers/3lvia/elvid](https://registry.terraform.io/providers/3lvia/elvid/latest) create a new github-release in this repo. 
+Github-actions is setup to atomatically build and publish new releases. 
 
 Github-actions uses the our private signing key to sign the build. The public variant of this key is added in terraform registry.
 Backup of the key is found in vault (prod) elvid/kv/manual/elvid-provider-build-signing-key
