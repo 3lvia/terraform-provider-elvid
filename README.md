@@ -47,10 +47,10 @@ That is nice to get things started, but it got a bit messy, so I moved the terra
 So instead install the provider in one of the common provicer locations.  
 ```console
 # Windows (from repo-root)
-go build -o $env:APPDATA\terraform.d\plugins\terraform-provider-elvid.exe
+go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
 
 # Linux (from repo-root)
-go build -o ~/.terraform.d/plugins/terraform-provider-elvid
+go build -o ~/.terraform.d/plugins/local/3lvia/elvid/9999.9.9/linux_amd64/terraform-provider-elvid_v9999.9.9
 ```
 
 ## Adding terraform.tfvars to terraform-tester
@@ -76,10 +76,11 @@ terraform apply;
 ## Build and run in one command
 ```console
 # from repo-root/terraform-tester
-cd ..; go build -o $env:APPDATA\terraform.d\plugins\terraform-provider-elvid.exe; cd .\terraform-tester; terraform init; terraform apply
+cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
 ```
 
 # Debugging
+Update: Try following this guide for debugging the next time: https://learn.hashicorp.com/tutorials/terraform/provider-debug?in=terraform/providers
 Debugging the go-code when running from terraform is not suported. 
 The best way I found was to write a file with the message I needed to check (a suggestion for a better solution here would be very helpfull)
 

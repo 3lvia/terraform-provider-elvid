@@ -102,6 +102,7 @@ type UserClient struct {
 	RedirectUriPaths                 []string `json:"RedirectUriPaths"`
 	PostLogoutRedirectUriPaths       []string `json:"PostLogoutRedirectUriPaths"`
 	BankIDLoginEnabled               bool     `json:"BankIDLoginEnabled"`
+	BankIDAuthSolutionLoginEnabled   bool     `json:"BankIDAuthSolutionLoginEnabled"`
 	LocalLoginEnabled                bool     `json:"LocalLoginEnabled"`
 	ElviaADLoginEnabled              bool     `json:"ElviaADLoginEnabled"`
 	HafslundADLoginEnabled           bool     `json:"HafslundADLoginEnabled"`
