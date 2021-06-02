@@ -54,5 +54,5 @@ func DeleteRequest(url string, accessToken string) (*http.Response, error) {
 
 func ElvidErrorResponse(response *http.Response, url string) error {
 	data, _ := ioutil.ReadAll(response.Body)
-	return fmt.Errorf("ElvID retured StatusCode %v for (%s), message: %s", response.StatusCode, url, data)
+	return fmt.Errorf("ElvID returned StatusCode %v for (%s), message: %s", response.StatusCode, url, data)
 }
