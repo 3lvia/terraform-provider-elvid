@@ -33,8 +33,8 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 	return &apiScope, nil
 }
 
-func ReadApiScope(elvidAuthority string, accessTokenAD string, id string) (*ApiScope, error) {
-	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, id)
+func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*ApiScope, error) {
+	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, name)
 
 	response, err := GetRequest(apiUrl, accessTokenAD)
 
