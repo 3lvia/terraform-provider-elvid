@@ -62,8 +62,8 @@ func ReadApiScope(elvidAuthority string, accessTokenAD string, id string) (*ApiS
 	return &apiScope, nil
 }
 
-func DeleteApiScope(elvidAuthority string, accessTokenAD string, id string) error {
-	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, id)
+func DeleteApiScope(elvidAuthority string, accessTokenAD string, apiScopeName string) error {
+	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, apiScopeName)
 
 	response, err := DeleteRequest(apiUrl, accessTokenAD)
 
