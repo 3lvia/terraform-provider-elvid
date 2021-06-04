@@ -1,28 +1,31 @@
 package main
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/3lvia/terraform-provider-elvid/elvidapiclient"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceApiScope() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApiScopeCreateOrUpdate,
-		Read:   resourceApiScopeRead,
-		Delete: resourceApiScopeDelete,
-		Update: resourceApiScopeCreateOrUpdate,
-		Importer: &schema.ResourceImporter{
-			State: func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-				providerInput := m.(*ElvidProviderInput)
-				d.SetId(d.Id())
-				d.Set("resource_taint_version", "1")
-				d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
-				err := resourceApiScopeRead(d, m)
-				return []*schema.ResourceData{d}, err
-			},
-		},
+		CreateContext: resourceApiScopeCreateOrUpdate,
+		ReadContext:   resourceApiScopeRead,
+		DeleteContext: resourceApiScopeDelete,
+		UpdateContext: resourceApiScopeCreateOrUpdate,
+		// TODO: få denne kompatibel med v2:
+		// Importer: &schema.ResourceImporter{
+		// 	State: func(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		// 		providerInput := m.(*ElvidProviderInput)
+		// 		d.SetId(d.Id())
+		// 		d.Set("resource_taint_version", "1")
+		// 		d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
+		// 		diags := resourceApiScopeRead(d, m)
+
+		// 		return []*schema.ResourceData{d}, diags
+		// 	},
+		// },
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -71,14 +74,13 @@ func resourceApiScope() *schema.Resource {
 	}
 }
 
-func resourceApiScopeCreateOrUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceApiScopeCreateOrUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiScopeInput := ReadApiScopeFromResourceData(d)
 	providerInput := m.(*ElvidProviderInput)
-	apiScope, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeInput)
+	apiScope, diags := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeInput)
 
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return err
+	if diags != nil {
+		return diags
 	}
 
 	d.SetId(apiScope.Name)
@@ -87,17 +89,16 @@ func resourceApiScopeCreateOrUpdate(d *schema.ResourceData, m interface{}) error
 	// d.Set("client_id", apiScope.ClientId)
 	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
 
-	return resourceApiScopeRead(d, m)
+	return resourceApiScopeRead(ctx, d, m)
 }
 
-func resourceApiScopeRead(d *schema.ResourceData, m interface{}) error {
+func resourceApiScopeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*ElvidProviderInput)
 
-	apiScope, err := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
+	apiScope, diags := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
 
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return err
+	if diags != nil {
+		return diags
 	}
 
 	if apiScope == nil {
@@ -116,16 +117,12 @@ func resourceApiScopeRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceApiScopeDelete(d *schema.ResourceData, m interface{}) error {
+func resourceApiScopeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*ElvidProviderInput)
 
-	err := elvidapiclient.DeleteApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
+	diags := elvidapiclient.DeleteApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
 
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return err
-	}
-	return nil
+	return diags
 }
 
 func ReadApiScopeFromResourceData(d *schema.ResourceData) *elvidapiclient.ApiScope {
