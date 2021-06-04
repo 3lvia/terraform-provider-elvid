@@ -38,7 +38,7 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
 
 # Running locally
 
-## Buld the provider for a local run
+## Build the provider for a local run
 The provider must be installed by building it to one of the [plugin locations that terraform init searches through](https://www.terraform.io/docs/extend/how-terraform-works.html#plugin-locations).
 
 Note that "terraform init" searches the current directory. So one could have everything in root here. 
@@ -47,6 +47,8 @@ That is nice to get things started, but it got a bit messy, so I moved the terra
 So instead install the provider in one of the common provicer locations.  
 ```console
 # Windows (from repo-root)
+go build -o %APPDATA%\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
+or
 go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
 
 # Linux (from repo-root)

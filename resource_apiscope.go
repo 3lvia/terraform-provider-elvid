@@ -32,12 +32,11 @@ func resourceApiScope() *schema.Resource {
 			"description": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     false,
 				Description: "A description of what this API scope is used for. Please include information about what it gives access to, and in what way it differs from similar API scopes, if any.",
 			},
-			"user_claims": {
+			"user_claims": &schema.Schema{
 				Type:     schema.TypeSet,
-				Required: false,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -46,14 +45,16 @@ func resourceApiScope() *schema.Resource {
 			},
 			"allow_machine_clients": &schema.Schema{
 				Type:        schema.TypeBool,
-				Required:    true,
-				Description: "Whether the API scope is intended for machine clients (allow_machine_clients and allow_user_clients are mutually exclusive)",
+				Optional:    true,
+				Default:     false,
+				Description: "Whether the API scope is intended for machine clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
 			},
 			// TODO: validering av at bare en av disse er satt. Eller skal vi mappe om til enum? Burde også ha validering av at bare en av disse er satt i API'et.
 			"allow_user_clients": &schema.Schema{
 				Type:        schema.TypeBool,
-				Required:    true,
-				Description: "Whether the API scope is intended for user clients (allow_machine_clients and allow_user_clients are mutually exclusive)",
+				Optional:    true,
+				Default:     false,
+				Description: "Whether the API scope is intended for user clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
 			},
 			"resource_taint_version": &schema.Schema{
 				Type:        schema.TypeString,
@@ -126,11 +127,6 @@ func resourceApiScopeDelete(d *schema.ResourceData, m interface{}) error {
 	}
 	return nil
 }
-
-// ClientName:           d.Get("name").(string),
-// Scopes:               getStringArrayFromResourceSet(d, "scopes"),
-// TestUserLoginEnabled: d.Get("test_user_login_enabled").(bool),
-// AccessTokenLifeTime:  d.Get("access_token_life_time").(int),
 
 func ReadApiScopeFromResourceData(d *schema.ResourceData) *elvidapiclient.ApiScope {
 	apiScope := &elvidapiclient.ApiScope{
