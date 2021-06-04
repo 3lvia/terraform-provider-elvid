@@ -58,9 +58,19 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 }
 
 func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*ApiScope, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if name == "" {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "No name provided in ReadApiScope",
+			Detail:   "",
+		})
+		return nil, diags
+	}
+
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, name)
 
-	var diags diag.Diagnostics
 	diags = append(diags, diag.Diagnostic{
 		Severity: diag.Warning, // Add a warning (debug info) that will only be shown if something errors
 		Summary:  "Calling ApiScope GET in ReadApiScope",
@@ -96,6 +106,7 @@ func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*Ap
 
 	var apiScope ApiScope
 	err = json.Unmarshal(data, &apiScope)
+
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

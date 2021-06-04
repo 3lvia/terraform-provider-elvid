@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/3lvia/terraform-provider-elvid/elvidapiclient"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -84,10 +85,8 @@ func resourceApiScopeCreateOrUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(apiScope.Name)
-	// TODO: hvilke felter skal lagres her? Read-funksjonen setter alt som trengs, utenom Id?
-	// Er token_endpoint kun for info?
-	// d.Set("client_id", apiScope.ClientId)
-	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
+	d.Set("name", apiScope.Name)                                           // Må sette denne også, for resourceApiScopeRead bruker den
+	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token") // TODO: er dette kun for info? Skal vi ha denne?
 
 	return resourceApiScopeRead(ctx, d, m)
 }
@@ -95,20 +94,28 @@ func resourceApiScopeCreateOrUpdate(ctx context.Context, d *schema.ResourceData,
 func resourceApiScopeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*ElvidProviderInput)
 
-	apiScope, diags := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
+	var localDiags diag.Diagnostics
+	localDiags = append(localDiags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Info: reading api client for resource",
+		Detail:   fmt.Sprintf("Debug info: this is the resource converted to ApiScope instance: %+v", ReadApiScopeFromResourceData(d)),
+	})
+
+	apiScope, diags := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Get("name").(string))
 
 	if diags != nil {
+		diags = append(localDiags, diags...)
 		return diags
 	}
 
 	if apiScope == nil {
 		// If the api scope is not found, let terraform know it does not exist.
 		d.SetId("")
-		// TODO: trenger vi ikke nullstille øvrige felter i ResourceData d?
 		return nil
 	}
 
-	d.Set("name", apiScope.Name) // TODO: trenger vi name i tillegg til Id i Terraform?
+	d.SetId(apiScope.Name)
+	d.Set("name", apiScope.Name) // TODO: trenger vi name i tillegg til Id i Terraform? Ser sånn ut, at vi ikke kan angi id direkte fra tf-fila...? Men kan vi koble dem mer direkte? Unngå (known after apply) for id?
 	d.Set("description", apiScope.Description)
 	d.Set("user_claims", apiScope.UserClaims)
 	d.Set("allow_machine_clients", apiScope.AllowMachineClients)
@@ -127,7 +134,7 @@ func resourceApiScopeDelete(ctx context.Context, d *schema.ResourceData, m inter
 
 func ReadApiScopeFromResourceData(d *schema.ResourceData) *elvidapiclient.ApiScope {
 	apiScope := &elvidapiclient.ApiScope{
-		Name:                d.Id(),
+		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		UserClaims:          getStringArrayFromResourceSet(d, "user_claims"),
 		AllowMachineClients: d.Get("allow_machine_clients").(bool),
