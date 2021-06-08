@@ -15,19 +15,8 @@ func resourceApiScope() *schema.Resource {
 		ReadContext:   resourceApiScopeRead,
 		DeleteContext: resourceApiScopeDelete,
 		UpdateContext: resourceApiScopeCreateOrUpdate,
-		// TODO: få denne kompatibel med v2:
-		// Importer: &schema.ResourceImporter{
-		// 	State: func(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-		// 		providerInput := m.(*ElvidProviderInput)
-		// 		d.SetId(d.Id())
-		// 		d.Set("resource_taint_version", "1")
-		// 		d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
-		// 		diags := resourceApiScopeRead(d, m)
-
-		// 		return []*schema.ResourceData{d}, diags
-		// 	},
-		// },
 		Schema: map[string]*schema.Schema{
+			// The id field has to be Optional and Computed. So we have the name field in addition to the id field even if they'll have the same value.
 			"name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
@@ -44,21 +33,22 @@ func resourceApiScope() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Description: "The scopes the client can request, note that scopes are auto approved in test and must be approved by an admin in production.",
-				// TODO: validere mot godkjente claims? Det holder vel at det feiler ved apply?
+				Description: "User claims that are included in the token when logging in with a machine/user client that has this API scope. (The token will include the superset of claims from all granted scopes).",
+				// We don't validate claims in Terraform. It is done by the Elvid API, and apply will fail if invalid scopes are used.
 			},
 			"allow_machine_clients": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether the API scope is intended for machine clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
+				// We don't validate allow_machine_clients XOR allow_user_clients in Terraform (haven't found a way to access other fields in ValidateFunc). It is validated in the Elvid API.
 			},
-			// TODO: validering av at bare en av disse er satt. Eller skal vi mappe om til enum? Burde også ha validering av at bare en av disse er satt i API'et.
 			"allow_user_clients": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether the API scope is intended for user clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
+				// We don't validate allow_machine_clients XOR allow_user_clients in Terraform (haven't found a way to access other fields in ValidateFunc). It is validated in the Elvid API.
 			},
 			"resource_taint_version": &schema.Schema{
 				Type:        schema.TypeString,
@@ -67,10 +57,9 @@ func resourceApiScope() *schema.Resource {
 				Default:     "1",
 				Description: "A change in value for this field will force recreating the resource",
 			},
-			"token_endpoint": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -85,8 +74,7 @@ func resourceApiScopeCreateOrUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(apiScope.Name)
-	d.Set("name", apiScope.Name)                                           // Må sette denne også, for resourceApiScopeRead bruker den
-	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token") // TODO: er dette kun for info? Skal vi ha denne?
+	d.Set("name", apiScope.Name) // Må sette denne også, for resourceApiScopeRead bruker den
 
 	return resourceApiScopeRead(ctx, d, m)
 }
@@ -115,7 +103,7 @@ func resourceApiScopeRead(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 
 	d.SetId(apiScope.Name)
-	d.Set("name", apiScope.Name) // TODO: trenger vi name i tillegg til Id i Terraform? Ser sånn ut, at vi ikke kan angi id direkte fra tf-fila...? Men kan vi koble dem mer direkte? Unngå (known after apply) for id?
+	d.Set("name", apiScope.Name)
 	d.Set("description", apiScope.Description)
 	d.Set("user_claims", apiScope.UserClaims)
 	d.Set("allow_machine_clients", apiScope.AllowMachineClients)
