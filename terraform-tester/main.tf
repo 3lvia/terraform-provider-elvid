@@ -58,9 +58,9 @@ provider "elvid" {
 
 ## API scope
 
-resource "elvid_apiscope" "apiscope" {
-    name = "terraform-provider-elvid-tester-apiscope"
-    description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
-    user_claims = ["email", "ad_groups"]
-    allow_machine_clients = true
-}
+# resource "elvid_apiscope" "apiscope" {
+#     name = "terraform-provider-elvid-tester-apiscope"
+#     description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
+#     user_claims = ["email", "ad_groups"]
+#     allow_machine_clients = true
+# }
