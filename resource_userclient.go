@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/elvidapiclient"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceUserClient() *schema.Resource {

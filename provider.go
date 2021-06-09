@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/3lvia/terraform-provider-elvid/elvidapiclient"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func Provider() *schema.Provider {
@@ -46,6 +46,7 @@ func Provider() *schema.Provider {
 			"elvid_clientsecret":  resourceClientSecret(),
 			"elvid_machineclient": resourceMachineClient(),
 			"elvid_userclient":    resourceUserClient(),
+			"elvid_apiscope":      resourceApiScope(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -77,6 +78,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	providerInput := &ElvidProviderInput{tenantID, accessTokenAD, elvidAuthority, runHashedSecretValidation}
 	return providerInput, nil
 }

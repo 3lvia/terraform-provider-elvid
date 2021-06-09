@@ -4,8 +4,8 @@ This custom terraform provider is used to manage resources for ElvID, which is a
 
 The provider is published to [registry.terraform.io/providers/3lvia/elvid](https://registry.terraform.io/providers/3lvia/elvid/latest).
 
-It can be used to manage machineclients (client_credentials/password) and userclients (authorication code), along with ClientSecrets for these clients.
-It uses Azure AD service principal for authentication, and on the API side we requre a specific scope for authorization.
+It can be used to manage machineclients (client_credentials/password), userclients (authorication code), ClientSecrets for these clients and API scopes.
+It uses Azure AD service principal for authentication, and on the API side we require a specific scope for authorization.
 
 Note that naming of resources, the authentication/authorization, and some schema variables (and their defaults) might be  specific to Elvia's usecase.
 Still we hope you can use this repo for inspiration and as a base to create your custom provider to manage IdentityServer resources.
@@ -35,10 +35,11 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
   * resource_clientsecret.go: Defines the resource schema and methods for clientsecrets.
   * resource_machineclient.go: Defines the resource schema and methods for machineclient.
   * resource_userclient.go: Defines the resource schema and methods for userclient.
+  * resource_apiscope.go: Defines the resource schema and methods for apiscope.
 
 # Running locally
 
-## Buld the provider for a local run
+## Build the provider for a local run
 The provider must be installed by building it to one of the [plugin locations that terraform init searches through](https://www.terraform.io/docs/extend/how-terraform-works.html#plugin-locations).
 
 Note that "terraform init" searches the current directory. So one could have everything in root here. 
@@ -47,6 +48,8 @@ That is nice to get things started, but it got a bit messy, so I moved the terra
 So instead install the provider in one of the common provicer locations.  
 ```console
 # Windows (from repo-root)
+go build -o %APPDATA%\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
+or
 go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
 
 # Linux (from repo-root)
@@ -72,23 +75,25 @@ Note that terraform.tfvars is added to .gitignore. Make sure to newer publish th
 terraform init;
 terraform apply;
 ```
+Note: terraform will not fetch the new version of the go library when you build again, when using "v9999.9.9" repeatedly. You need to delete the .terraform.lock.hcl file in your terraform-tester folder and run terraform init again to run with the newly built version (the .terraform directory contains a copy of the previous version of the go library, but you don't need to delete it to get your new build).
 
 ## Build and run in one command
 ```console
 # from repo-root/terraform-tester
-cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
+rm .terraform.lock.hcl -ErrorAction Ignore; cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
 ```
+See the note in "Running terraform locally" about deleting the terraform lock file after building new "v9999.9.9" version.
 
 # Debugging
-Update: Try following this guide for debugging the next time: https://learn.hashicorp.com/tutorials/terraform/provider-debug?in=terraform/providers
-Debugging the go-code when running from terraform is not suported. 
-The best way I found was to write a file with the message I needed to check (a suggestion for a better solution here would be very helpfull)
+Debugging the go-code when running from terraform is not suported. It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
+
+For resources/services that is not yet rewritten to v2 (but still use error and Create instead of CreateContext), debugging can be done by writing a file with debug messages:
 
 ```
 # for a string 
 ioutil.WriteFile("custom-log.text", []byte(someString), 0644)
 
-# for a object
+# for an object
 serialized, _ := json.Marshal(someObject)
 ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
 ```
@@ -120,4 +125,5 @@ Follow the README in terraform-plugins to finish publishing there.
 * The code must be in {GOPATH}\src\github.com\3lvia
 * Filename resources must be in format resource_{resourcename}.go
 * Creating a "resource_taint_version" variable with ForceNew=true was very helpfull to quickly test changes, and will be helpfull in actual use as well. 
-* Terraform does handling state and knows when to call create, read, delete, update. So create good variable-schemas, implement these methods and let terraform handle the rest
+* Terraform does handling state and knows when to call create, read, delete, update. So create good variable-schemas, implement these methods and let terraform handle the rest.
+* The id field has to be Optional and Computed, so even resources where the id can be defined in the tf file, it will be "(known after apply)". Example: apiscope, where id=name, and we use the name field as required input, and set id=name when the resource is created.

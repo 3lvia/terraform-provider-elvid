@@ -6,8 +6,8 @@ provider "elvid" {
   terraform_sp_client_id = var.terraform_sp_client_id
   terraform_sp_client_secret = var.terraform_sp_client_secret
   environment = var.environment
-  override_elvid_authority = "https://localhost:44383"
-  # override_elvid_authority = "https://elvid.dev-elvia.io"
+  # override_elvid_authority = "https://localhost:44383"
+  override_elvid_authority = "https://elvid.dev-elvia.io"
   run_hashed_secret_validation = true
 }
 
@@ -54,4 +54,13 @@ provider "elvid" {
 
 # output "clientsecret" {
 #   value = elvid_clientsecret.clientsecret
+# }
+
+## API scope
+
+# resource "elvid_apiscope" "apiscope" {
+#     name = "terraform-provider-elvid-tester-apiscope"
+#     description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
+#     user_claims = ["email", "ad_groups"]
+#     allow_machine_clients = true
 # }
