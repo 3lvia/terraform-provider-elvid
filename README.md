@@ -75,14 +75,14 @@ Note that terraform.tfvars is added to .gitignore. Make sure to newer publish th
 terraform init;
 terraform apply;
 ```
-Note: terraform will not fetch the new version of the go library when you build again, when using "v9999.9.9" repeatedly. You need to delete the .terraform file .terraform.lock.hcl directory in your terraform-tester folder and run terraform init again to run with the newly built version.
+Note: terraform will not fetch the new version of the go library when you build again, when using "v9999.9.9" repeatedly. You need to delete the .terraform.lock.hcl file in your terraform-tester folder and run terraform init again to run with the newly built version (the .terraform directory contains a copy of the previous version of the go library, but you don't need to delete it to get your new build).
 
 ## Build and run in one command
 ```console
 # from repo-root/terraform-tester
-cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
+rm .terraform.lock.hcl -ErrorAction Ignore; cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
 ```
-See the note in "Running terraform locally" about deleting terraform state files after building new "v9999.9.9" version.
+See the note in "Running terraform locally" about deleting the terraform lock file after building new "v9999.9.9" version.
 
 # Debugging
 Debugging the go-code when running from terraform is not suported. It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
