@@ -66,12 +66,6 @@ func resourceUserClient() *schema.Resource {
 				Default:     false,
 				Description: "Enable to allow user to log in with BankID.",
 			},
-			"bankid_authsolution_login_enabled": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Enable to allow user to log in with BankID Auth Solution (temp).",
-			},
 			"local_login_enabled": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -205,7 +199,6 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("redirect_uri_paths", userClient.RedirectUriPaths)
 	d.Set("post_logout_redirect_uri_paths", userClient.PostLogoutRedirectUriPaths)
 	d.Set("bankid_login_enabled", userClient.BankIDLoginEnabled)
-	d.Set("bankid_authsolution_login_enabled", userClient.BankIDAuthSolutionLoginEnabled)
 	d.Set("local_login_enabled", userClient.LocalLoginEnabled)
 	d.Set("elvia_ad_login_enabled", userClient.ElviaADLoginEnabled)
 	d.Set("hafslund_ad_login_enabled", userClient.HafslundADLoginEnabled)
@@ -257,7 +250,6 @@ func ReadUserClientFromResourceData(d *schema.ResourceData) *elvidapiclient.User
 		RedirectUriPaths:                 getStringArrayFromResourceSet(d, "redirect_uri_paths"),
 		PostLogoutRedirectUriPaths:       getStringArrayFromResourceSet(d, "post_logout_redirect_uri_paths"),
 		BankIDLoginEnabled:               d.Get("bankid_login_enabled").(bool),
-		BankIDAuthSolutionLoginEnabled:   d.Get("bankid_authsolution_login_enabled").(bool),
 		LocalLoginEnabled:                d.Get("local_login_enabled").(bool),
 		ElviaADLoginEnabled:              d.Get("elvia_ad_login_enabled").(bool),
 		HafslundADLoginEnabled:           d.Get("hafslund_ad_login_enabled").(bool),
