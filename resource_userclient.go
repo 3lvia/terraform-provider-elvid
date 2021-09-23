@@ -78,12 +78,6 @@ func resourceUserClient() *schema.Resource {
 				Default:     false,
 				Description: "Enable to allow user to log in with Elvia AD.",
 			},
-			"hafslund_ad_login_enabled": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Enable to allow user to log in with Hafslund AD.",
-			},
 			"test_user_login_enabled": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -201,7 +195,6 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("bankid_login_enabled", userClient.BankIDLoginEnabled)
 	d.Set("local_login_enabled", userClient.LocalLoginEnabled)
 	d.Set("elvia_ad_login_enabled", userClient.ElviaADLoginEnabled)
-	d.Set("hafslund_ad_login_enabled", userClient.HafslundADLoginEnabled)
 	d.Set("test_user_login_enabled", userClient.TestUserLoginEnabled)
 	d.Set("require_client_secret", userClient.RequireClientSecret)
 	d.Set("access_token_life_time", userClient.AccessTokenLifetime)
@@ -252,7 +245,6 @@ func ReadUserClientFromResourceData(d *schema.ResourceData) *elvidapiclient.User
 		BankIDLoginEnabled:               d.Get("bankid_login_enabled").(bool),
 		LocalLoginEnabled:                d.Get("local_login_enabled").(bool),
 		ElviaADLoginEnabled:              d.Get("elvia_ad_login_enabled").(bool),
-		HafslundADLoginEnabled:           d.Get("hafslund_ad_login_enabled").(bool),
 		TestUserLoginEnabled:             d.Get("test_user_login_enabled").(bool),
 		RequireClientSecret:              d.Get("require_client_secret").(bool),
 		AccessTokenLifetime:              d.Get("access_token_life_time").(int),

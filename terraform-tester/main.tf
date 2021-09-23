@@ -22,7 +22,6 @@ provider "elvid" {
 #     bankid_login_enabled = true
 #     local_login_enabled = true
 #     elvia_ad_login_enabled = false
-#     hafslund_ad_login_enabled = false
 #     test_user_login_enabled = false
 #     require_client_secret = false
 #     access_token_life_time = 3598

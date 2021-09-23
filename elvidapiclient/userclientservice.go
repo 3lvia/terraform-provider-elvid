@@ -104,7 +104,6 @@ type UserClient struct {
 	BankIDLoginEnabled               bool     `json:"BankIDLoginEnabled"`
 	LocalLoginEnabled                bool     `json:"LocalLoginEnabled"`
 	ElviaADLoginEnabled              bool     `json:"ElviaADLoginEnabled"`
-	HafslundADLoginEnabled           bool     `json:"HafslundADLoginEnabled"`
 	TestUserLoginEnabled             bool     `json:"TestUserLoginEnabled"`
 	RequireClientSecret              bool     `json:"RequireClientSecret"`
 	AccessTokenLifetime              int      `json:"AccessTokenLifetime"`
