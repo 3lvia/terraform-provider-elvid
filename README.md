@@ -105,21 +105,6 @@ Github-actions is setup to atomatically build and publish new releases.
 Github-actions uses the our private signing key to sign the build. The public variant of this key is added in terraform registry.
 Backup of the key is found in vault (prod) elvid/kv/manual/elvid-provider-build-signing-key
 
-## Publish to terraform-plugins (The old method without terraform registry for terraform <= 0.12)
-For terraform 12 we can't read from terraform registry, instead we have a repo (terraform-plugins) where we publish the compiled binaries.
-The terraform-plugins repo is added to the terreform-repos using git submodule.
-
-In windows powershell (or adust for linux)
-```console
-$env:BuildProviderVersion = '1.0.3'
-$env:GOOS = "windows";$env:GOARCH = "amd64"; go build -o C:\3lvia\terraform-plugins\windows_amd64\terraform-provider-elvid_v$env:BuildProviderVersion.exe
-$env:GOOS = "linux"; $env:GOARCH = "amd64"; go build -o C:\3lvia\terraform-plugins\linux_amd64\terraform-provider-elvid_v$env:BuildProviderVersion
-$env:GOOS = "darwin";$env:GOARCH = "amd64"; go build -o C:\3lvia\terraform-plugins\darwin_amd64\terraform-provider-elvid_v$env:BuildProviderVersion
-Copy-Item "C:\3lvia\terraform-plugins\linux_amd64\terraform-provider-elvid_v$env:BuildProviderVersion" -Destination "C:\3lvia\terraform-plugins\terraform-provider-elvid_v$env:BuildProviderVersion"
-```
-
-Follow the README in terraform-plugins to finish publishing there.
-
 # Notes from creating a custom provider
 * Creating a class-library to wrap the api was helpful, to get more clean resource-code. It was benefitial to have it in the same repo. 
 * The code must be in {GOPATH}\src\github.com\3lvia
