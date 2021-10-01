@@ -40,7 +40,7 @@ func resourceMachineClient() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "When this is enabled the client can only use the delegation grant type. This is used when an already logged inn user will create a long-lived delegation access_token",
+				Description: "When this is enabled the client can only use the delegation grant type. This is used when a already logged inn user will create a long-lived delegation access_token",
 			},
 			"access_token_life_time": &schema.Schema{
 				Type:        schema.TypeInt,
