@@ -36,18 +36,17 @@ func resourceMachineClient() *schema.Resource {
 				Default:     false,
 				Description: "When this is enabled it's possible to mechanically login with a test user to this client. This is done by using grant-type password for the token endpoint. See ElvID space on confluence for details",
 			},
+			"is_delegation_client": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "When this is enabled the client can only use the delegation grant type. This is used when an already logged inn user will create a long-lived delegation access_token",
+			},
 			"access_token_life_time": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     3600,
-				Description: "Number of seconds before an access token expires. Default is 3600 seconds (1 hour)",
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					v := val.(int)
-					if v < 1 || v > 3600 {
-						errs = append(errs, fmt.Errorf("%q must be between 1 and 3600 inclusive, got: %d", key, v))
-					}
-					return
-				},
+				Description: "Number of seconds before an access token expires. Default and maximum is 3600 seconds (1 hour) for regular machine clients.",
 			},
 			"scopes": {
 				Type:     schema.TypeSet,
@@ -114,6 +113,8 @@ func resourceMachineClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", machineClient.ClientName)
 	d.Set("access_token_life_time", machineClient.AccessTokenLifeTime)
 	d.Set("test_user_login_enabled", machineClient.TestUserLoginEnabled)
+	d.Set("is_delegation_client", machineClient.IsDelegationClient)
+
 	d.Set("scopes", machineClient.Scopes)
 
 	return nil
@@ -153,6 +154,7 @@ func ReadMachineClientFromResourceData(d *schema.ResourceData) *elvidapiclient.M
 		Scopes:               getStringArrayFromResourceSet(d, "scopes"),
 		TestUserLoginEnabled: d.Get("test_user_login_enabled").(bool),
 		AccessTokenLifeTime:  d.Get("access_token_life_time").(int),
+		IsDelegationClient:   d.Get("is_delegation_client").(bool),
 	}
 	return machineClient
 }

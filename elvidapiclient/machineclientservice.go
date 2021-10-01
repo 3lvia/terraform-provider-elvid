@@ -110,6 +110,7 @@ type MachineClient struct {
 	ClientId             string   `json:"ClientId"`
 	ClientName           string   `json:"ClientName"`
 	TestUserLoginEnabled bool     `json:"TestUserLoginEnabled"`
+	IsDelegationClient   bool     `json:"IsDelegationClient"`
 	AccessTokenLifeTime  int      `json:"AccessTokenLifeTime"`
 	Scopes               []string `json:"Scopes"`
 }
