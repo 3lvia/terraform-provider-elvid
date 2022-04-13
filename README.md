@@ -37,23 +37,28 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
   * resource_userclient.go: Defines the resource schema and methods for userclient.
   * resource_apiscope.go: Defines the resource schema and methods for apiscope.
 
-# Running locally
+# Setup terraform for running locally
+## Setup dev overrides to target local build of the provider
+This makes sure that terraform will use the local build of the provider and not the published build from terraform registry.
 
-## Build the provider for a local run
-The provider must be installed by building it to one of the [plugin locations that terraform init searches through](https://www.terraform.io/docs/extend/how-terraform-works.html#plugin-locations).
+Note that terraform init will download the published library from terraform registry, but the dev_overrides variant will still be used on plan/apply. 
 
-Note that "terraform init" searches the current directory. So one could have everything in root here. 
-That is nice to get things started, but it got a bit messy, so I moved the terraform files to a seperate folde (terraform-tester).
+This is done in the .terraformrc/terraform.rc file see https://www.terraform.io/cli/config/config-file#locations
 
-So instead install the provider in one of the common provicer locations.  
+For windows create/edit $env:APPDATA\terraform.rc and add provider_installation
+
 ```console
-# Windows (from repo-root)
-go build -o %APPDATA%\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
-or
-go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe
+provider_installation {
+  # Override provider for local development
+  dev_overrides {
+    "3lvia/elvid" = "C:\\Users\\{{replace with your windows username}}\\go\\src\\github.com\\3lvia\\terraform-provider-elvid"
+  }
 
-# Linux (from repo-root)
-go build -o ~/.terraform.d/plugins/local/3lvia/elvid/9999.9.9/linux_amd64/terraform-provider-elvid_v9999.9.9
+  # For all other providers, install them directly from their origin provider
+  # registries as normal. If you omit this, Terraform will _only_ use
+  # the dev_overrides block, and so no other providers will be available.
+  direct {}
+}
 ```
 
 ## Adding terraform.tfvars to terraform-tester
@@ -68,21 +73,32 @@ tenant_id = "replaceme"
 
 Note that terraform.tfvars is added to .gitignore. Make sure to newer publish these secrets. This is a public repository.
 
+# Running locally
+
+## Build the provider for a local run
+
+```console
+# from repo-root
+go build
+```
+
 ## Running terraform locally
+Make sure you have setup terraform for running locally (described above)
 
 ```console
 # from repo-root/terraform-tester
-terraform init;
 terraform apply;
-```
-Note: terraform will not fetch the new version of the go library when you build again, when using "v9999.9.9" repeatedly. You need to delete the .terraform.lock.hcl file in your terraform-tester folder and run terraform init again to run with the newly built version (the .terraform directory contains a copy of the previous version of the go library, but you don't need to delete it to get your new build).
 
-## Build and run in one command
-```console
-# from repo-root/terraform-tester
-rm .terraform.lock.hcl -ErrorAction Ignore; cd ..; go build -o $env:APPDATA\terraform.d\plugins\local\3lvia\elvid\9999.9.9\windows_amd64\terraform-provider-elvid_v9999.9.9.exe; cd .\terraform-tester; terraform init; terraform apply
 ```
-See the note in "Running terraform locally" about deleting the terraform lock file after building new "v9999.9.9" version.
+You should get a warning on plan / apply
+```console
+ The following provider development overrides are set in the CLI configuration:
+│  - 3lvia/elvid in C:\Users\{{username}}\go\src\github.com\3lvia\terraform-provider-elvid
+```
+
+You don't usually need to run terraform init because we are using dev_overrides.
+If you are working with modules, you might have to do terraform init (it will tell you when running plan or apply).
+Terraform init will download the published library from terraform registry, but the dev_overrides variant will still be used on plan/apply. 
 
 # Debugging
 Debugging the go-code when running from terraform is not suported. It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
