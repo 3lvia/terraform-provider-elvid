@@ -16,9 +16,9 @@ variable "system_name" {
 }
 
 variable "domains" {
-  type = map
+  type = map(any)
   default = {
-    "dev" = ["http://localhost:{port}", "https://examplesystem.dev-elvia.io"]
+    "dev"  = ["http://localhost:{port}", "https://examplesystem.dev-elvia.io"]
     "test" = ["https://examplesystem.test-elvia.io"]
     "prod" = ["https://examplesystem.elvia.io"]
   }
