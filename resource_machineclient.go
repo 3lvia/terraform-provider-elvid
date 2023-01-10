@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/elvidapiclient"
@@ -68,12 +70,12 @@ func resourceMachineClient() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": {
+						"type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"claims": {
+						"values": {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Schema{
@@ -151,10 +153,11 @@ func resourceMachineClientUpdate(ctx context.Context, d *schema.ResourceData, m 
 	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
 	var diags diag.Diagnostics
 
+	body, _ := json.Marshal(machineClientInput)
 	diags = append(diags, diag.Diagnostic{
 		Severity: diag.Warning,
 		Summary:  "WarningS",
-		Detail:   "WarningD",
+		Detail:   "WarningD" + string(body),
 	})
 
 	if err != nil {
@@ -188,12 +191,28 @@ func resourceMachineClientDelete(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func ReadMachineClientFromResourceData(d *schema.ResourceData) *elvidapiclient.MachineClient {
+	rawList := d.Get("client_claims").(*schema.Set).List()
+	clientClaims := make([]elvidapiclient.ClientClaim, len(rawList))
+	for i, v := range rawList {
+		clientClaimMap := v.(map[string]interface{})
+		claimsInterface := clientClaimMap["values"].([]interface{})
+		values := make([]string, len(claimsInterface))
+		for i, v := range claimsInterface {
+			values[i] = v.(string)
+		}
+		clientClaims[i] = elvidapiclient.ClientClaim{
+			Type:   fmt.Sprintf("%v", clientClaimMap["type"]),
+			Values: values,
+		}
+	}
+
 	machineClient := &elvidapiclient.MachineClient{
 		ClientName:           d.Get("name").(string),
 		Scopes:               getStringArrayFromResourceSet(d, "scopes"),
 		TestUserLoginEnabled: d.Get("test_user_login_enabled").(bool),
 		AccessTokenLifeTime:  d.Get("access_token_life_time").(int),
 		IsDelegationClient:   d.Get("is_delegation_client").(bool),
+		ClientClaims:         clientClaims,
 	}
 	return machineClient
 }
