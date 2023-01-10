@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -140,6 +139,14 @@ func resourceMachineClientRead(ctx context.Context, d *schema.ResourceData, m in
 	d.Set("test_user_login_enabled", machineClient.TestUserLoginEnabled)
 	d.Set("is_delegation_client", machineClient.IsDelegationClient)
 
+	clientClaims := make([]interface{}, len(machineClient.ClientClaims))
+	for i, s := range machineClient.ClientClaims {
+		clientClaimsMap := make(map[string]interface{})
+		clientClaimsMap["type"] = s.Type
+		clientClaimsMap["values"] = s.Values
+		clientClaims[i] = clientClaimsMap
+	}
+	d.Set("client_claims", clientClaims)
 	d.Set("scopes", machineClient.Scopes)
 
 	return diags
@@ -152,13 +159,6 @@ func resourceMachineClientUpdate(ctx context.Context, d *schema.ResourceData, m 
 
 	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
 	var diags diag.Diagnostics
-
-	body, _ := json.Marshal(machineClientInput)
-	diags = append(diags, diag.Diagnostic{
-		Severity: diag.Warning,
-		Summary:  "WarningS",
-		Detail:   "WarningD" + string(body),
-	})
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{

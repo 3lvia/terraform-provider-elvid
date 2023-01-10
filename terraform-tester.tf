@@ -59,7 +59,7 @@ resource "elvid_machineclient" "machineclient" {
     }
     client_claims {
       type = "edna_topics_write"
-      values = ["topicA", "topicB", "topicC"]
+      values = ["topicA", "topicB", "D"]
     }
 }
 
