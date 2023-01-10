@@ -91,14 +91,9 @@ func resourceMachineClientCreate(ctx context.Context, d *schema.ResourceData, m 
 	machineClientInput := ReadMachineClientFromResourceData(d)
 	providerInput := m.(*ElvidProviderInput)
 	machineClient, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
-
-	// if err != nil {
-	// 	fmt.Printf("Error: %s\n", err)
-	// 	return err
-	// }
+	var diags diag.Diagnostics
 
 	if err != nil {
-		var diags diag.Diagnostics
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Creating machineclient resulted in an error",
@@ -111,7 +106,8 @@ func resourceMachineClientCreate(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("client_id", machineClient.ClientId)
 	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
 
-	return resourceMachineClientRead(ctx, d, m)
+	resourceMachineClientRead(ctx, d, m)
+	return diags
 }
 
 func resourceMachineClientRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -119,8 +115,9 @@ func resourceMachineClientRead(ctx context.Context, d *schema.ResourceData, m in
 
 	machineClient, err := elvidapiclient.ReadMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
 
+	var diags diag.Diagnostics
+
 	if err != nil {
-		var diags diag.Diagnostics
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Reading machineclient resulted in an error",
@@ -132,7 +129,7 @@ func resourceMachineClientRead(ctx context.Context, d *schema.ResourceData, m in
 	if machineClient == nil {
 		// If the client is not found, let terraform know it does not exist.
 		d.SetId("")
-		return nil
+		return diags
 	}
 
 	d.Set("client_id", machineClient.ClientId)
@@ -143,7 +140,7 @@ func resourceMachineClientRead(ctx context.Context, d *schema.ResourceData, m in
 
 	d.Set("scopes", machineClient.Scopes)
 
-	return nil
+	return diags
 }
 
 func resourceMachineClientUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -152,9 +149,15 @@ func resourceMachineClientUpdate(ctx context.Context, d *schema.ResourceData, m 
 	providerInput := m.(*ElvidProviderInput)
 
 	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
+	var diags diag.Diagnostics
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "WarningS",
+		Detail:   "WarningD",
+	})
 
 	if err != nil {
-		var diags diag.Diagnostics
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Updating machineclient resulted in an error",
@@ -164,24 +167,24 @@ func resourceMachineClientUpdate(ctx context.Context, d *schema.ResourceData, m 
 	}
 	d.Set("token_endpoint", providerInput.ElvIDAuthority+"/connect/token")
 
-	return resourceMachineClientRead(ctx, d, m)
+	resourceMachineClientRead(ctx, d, m)
+	return diags
 }
 
 func resourceMachineClientDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*ElvidProviderInput)
+	var diags diag.Diagnostics
 
 	err := elvidapiclient.DeleteMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, d.Id())
 
 	if err != nil {
-		var diags diag.Diagnostics
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Deleting machineclient resulted in an error",
 			Detail:   err.Error(),
 		})
-		return diags
 	}
-	return nil
+	return diags
 }
 
 func ReadMachineClientFromResourceData(d *schema.ResourceData) *elvidapiclient.MachineClient {
