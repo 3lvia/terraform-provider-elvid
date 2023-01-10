@@ -191,6 +191,18 @@ func resourceMachineClientDelete(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func ReadMachineClientFromResourceData(d *schema.ResourceData) *elvidapiclient.MachineClient {
+	machineClient := &elvidapiclient.MachineClient{
+		ClientName:           d.Get("name").(string),
+		Scopes:               getStringArrayFromResourceSet(d, "scopes"),
+		TestUserLoginEnabled: d.Get("test_user_login_enabled").(bool),
+		AccessTokenLifeTime:  d.Get("access_token_life_time").(int),
+		IsDelegationClient:   d.Get("is_delegation_client").(bool),
+		ClientClaims:         readClientClaimsFromResourceData(d),
+	}
+	return machineClient
+}
+
+func readClientClaimsFromResourceData(d *schema.ResourceData) []elvidapiclient.ClientClaim {
 	rawList := d.Get("client_claims").(*schema.Set).List()
 	clientClaims := make([]elvidapiclient.ClientClaim, len(rawList))
 	for i, v := range rawList {
@@ -205,14 +217,5 @@ func ReadMachineClientFromResourceData(d *schema.ResourceData) *elvidapiclient.M
 			Values: values,
 		}
 	}
-
-	machineClient := &elvidapiclient.MachineClient{
-		ClientName:           d.Get("name").(string),
-		Scopes:               getStringArrayFromResourceSet(d, "scopes"),
-		TestUserLoginEnabled: d.Get("test_user_login_enabled").(bool),
-		AccessTokenLifeTime:  d.Get("access_token_life_time").(int),
-		IsDelegationClient:   d.Get("is_delegation_client").(bool),
-		ClientClaims:         clientClaims,
-	}
-	return machineClient
+	return clientClaims
 }
