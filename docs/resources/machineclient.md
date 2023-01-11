@@ -9,6 +9,14 @@ It is always used together with at least one clientsecret-resource.
 resource "elvid_machineclient" "machineclient" {
    name = "example-machineclient"
    scopes = ["temp"]
+   client_claims {
+      type = "edna_topics_read"
+      values = ["topicA"]
+   }
+   client_claims {
+      type = "edna_topics_write"
+      values = ["topicA", "topicB"]
+   }
 }
 ```
 
