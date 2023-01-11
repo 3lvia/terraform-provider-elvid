@@ -28,7 +28,7 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
 
 # Project structure
 * repo-root
-  * terraform-tester: folder with terraform files for manually testing the provider.
+  * terraform-tester.tf/versions.tf: terraform files for manually testing the provider.
   * elvidapiclient: go class-library for getting AccessToken from AD and calling ElvID-api
   * main.go: Standard file, sets up serving of the provider by calling the Provider()-function.
   * provider.go: Defines the provider schema (inputs to the provider), the mapping to resorces, and the interface that is passed to resrouces
@@ -62,7 +62,7 @@ provider_installation {
 ```
 
 ## Adding terraform.tfvars to terraform-tester
-Create ../terraform-tester/terraform.tfvars and add these variables.
+Create {repo-root}/terraform.tfvars and add these variables.
 Secret values can be found in vault-dev in the path /elvid/kv/manual/terraform_provider_elvid_adcredentials
 
 ```
@@ -86,10 +86,10 @@ go build
 Make sure you have setup terraform for running locally (described above)
 
 ```console
-# from repo-root/terraform-tester
+# from repo-root
 terraform apply;
-
 ```
+
 You should get a warning on plan / apply
 ```console
  The following provider development overrides are set in the CLI configuration:
@@ -100,8 +100,16 @@ You don't usually need to run terraform init because we are using dev_overrides.
 If you are working with modules, you might have to do terraform init (it will tell you when running plan or apply).
 Terraform init will download the published library from terraform registry, but the dev_overrides variant will still be used on plan/apply. 
 
+## Build and apply with one command
+```console
+# from repo-root
+go build; terraform apply -auto-approve;
+```
+
 # Debugging
-Debugging the go-code when running from terraform is not suported. It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
+Debugging the go-code when running from terraform is not added to this repo. See [this guide if debugging should be considered](https://developer.hashicorp.com/terraform/plugin/sdkv2/guides/v2-upgrade-guide#support-for-debuggable-provider-binaries).
+
+It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
 
 For resources/services that is not yet rewritten to v2 (but still use error and Create instead of CreateContext), debugging can be done by writing a file with debug messages:
 
