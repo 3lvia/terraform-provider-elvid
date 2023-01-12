@@ -67,7 +67,7 @@ func resourceMachineClient() *schema.Resource {
 			"client_claims": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "Client claims is claims for the client that will allways be added in the access_token. The claim will get client_ as prefix in the token.",
+				Description: "Client claims is claims for the client that will allways be added in the access_token. The claim type must start with 'client_'.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {

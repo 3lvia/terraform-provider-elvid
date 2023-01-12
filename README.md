@@ -71,6 +71,16 @@ terraform_sp_client_secret = "replaceme"
 tenant_id = "replaceme"
 ```
 
+### Setup vault provider if needed
+If you are using the machineclient or userclient modules in terrform-tester.tf, you alse need to setup vault provider.
+Uncommment vault-provider in terrform-tester.tf.
+
+Add elvid_dev_vault_role_id to terraform.tfvars.
+Secret values can be found in vault-dev in the path /elvid/kv/vault/role_id 
+```
+elvid_dev_vault_role_id = "replaceme"
+```
+ 
 Note that terraform.tfvars is added to .gitignore. Make sure to newer publish these secrets. This is a public repository.
 
 # Running locally
@@ -109,7 +119,7 @@ go build; terraform apply -auto-approve;
 # Debugging
 Debugging the go-code when running from terraform is not added to this repo. See [this guide if debugging should be considered](https://developer.hashicorp.com/terraform/plugin/sdkv2/guides/v2-upgrade-guide#support-for-debuggable-provider-binaries).
 
-It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
+It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope and MachineClient. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
 
 For resources/services that is not yet rewritten to v2 (but still use error and Create instead of CreateContext), debugging can be done by writing a file with debug messages:
 

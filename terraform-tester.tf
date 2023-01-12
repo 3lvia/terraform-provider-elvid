@@ -10,15 +10,15 @@ provider "elvid" {
   # override_elvid_authority = "https://elvid.dev-elvia.io"
 }
 
-# provider "vault" {
-#   auth_login {
-#     path = "auth/approle/login"
+provider "vault" {
+  auth_login {
+    path = "auth/approle/login"
 
-#     parameters = {
-#       role_id = var.elvid_dev_vault_role_id
-#     }
-#   }
-# }
+    parameters = {
+      role_id = var.elvid_dev_vault_role_id
+    }
+  }
+}
 
 ## User client
 
@@ -47,21 +47,21 @@ provider "elvid" {
 
 ## Machine client
 
-resource "elvid_machineclient" "machineclient" {
-    name = "onsdag"
-    test_user_login_enabled = true
-    access_token_life_time = 3511
-    resource_taint_version = "1"
-    scopes = ["elvid.verifydeployment"]
-    client_claims {
-      type = "edna_topics_read"
-      values = ["topic1"]
-    }
-    client_claims {
-      type = "edna_topics_write"
-      values = ["topicA", "topicB", "D"]
-    }
-}
+# resource "elvid_machineclient" "machineclient" {
+#     name = "onsdag"
+#     test_user_login_enabled = true
+#     access_token_life_time = 3511
+#     resource_taint_version = "1"
+#     scopes = ["elvid.verifydeployment"]
+#     client_claims {
+#       type = "edna_topics_read"
+#       values = ["topic1"]
+#     }
+#     client_claims {
+#       type = "edna_topics_write"
+#       values = ["topicA", "topicB", "D"]
+#     }
+# }
 
 # resource "elvid_clientsecret" "clientsecret" {
 #     client_id = elvid_machineclient.machineclient.id
@@ -77,15 +77,15 @@ resource "elvid_machineclient" "machineclient" {
 # }
 
 ## API scope
-
 # resource "elvid_apiscope" "apiscope" {
-#     name = "terraform-provider-elvid-tester-apiscope2"
-#     description = "3"
+#     name = "terraform-provider-elvid-tester-apiscope"
+#     description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
 #     user_claims = ["email", "ad_groups"]
 #     allow_user_clients = true
 # }
 
 ## Module userclient
+## Note that this require vault setup. Se readme
 # module "elvid_userclient" {
 #   source      = "C:\\3lvia\\terraform-elvid-userclient"
 #   environment = "dev"
@@ -100,14 +100,24 @@ resource "elvid_machineclient" "machineclient" {
 # }
 
 ## Module machineclient
-## Note that this require vault setup
+## Note that this require vault setup. Se readme
 # module "elvid_machineclient" {
 #   # source  = "app.terraform.io/Elvia/machineclient/elvid"
 #   source      = "C:\\3lvia\\terraform-elvid-machineclient"
 #   scopes = ["louvre.imageapi"]
 #   environment      = var.environment
 #   system_name      = "elvid"
-#   application_name = "demo-machineclient"
+#   application_name = "demo-machineclient2"
+#   client_claims = [
+#     {
+#       type = "client_kafka_topic_read"
+#       values = ["topic1", "topic2"]
+#     },
+#     {
+#       type = "client_kafka_topic_write"
+#       values = ["topic1", "topic2"]
+#     }
+#   ]
 # }
 
 variable "tenant_id" {
