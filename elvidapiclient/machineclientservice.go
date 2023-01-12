@@ -106,11 +106,17 @@ func DeleteMachineClient(elvidAuthority string, accessTokenAD string, id string)
 }
 
 type MachineClient struct {
-	Id                   int      `json:"Id"`
-	ClientId             string   `json:"ClientId"`
-	ClientName           string   `json:"ClientName"`
-	TestUserLoginEnabled bool     `json:"TestUserLoginEnabled"`
-	IsDelegationClient   bool     `json:"IsDelegationClient"`
-	AccessTokenLifeTime  int      `json:"AccessTokenLifeTime"`
-	Scopes               []string `json:"Scopes"`
+	Id                   int           `json:"Id"`
+	ClientId             string        `json:"ClientId"`
+	ClientName           string        `json:"ClientName"`
+	TestUserLoginEnabled bool          `json:"TestUserLoginEnabled"`
+	IsDelegationClient   bool          `json:"IsDelegationClient"`
+	AccessTokenLifeTime  int           `json:"AccessTokenLifeTime"`
+	Scopes               []string      `json:"Scopes"`
+	ClientClaims         []ClientClaim `json:"ClientClaims"`
+}
+
+type ClientClaim struct {
+	Type   string   `json:"Type"`
+	Values []string `json:"Values"`
 }
