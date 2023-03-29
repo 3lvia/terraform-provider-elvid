@@ -152,6 +152,27 @@ func resourceUserClient() *schema.Resource {
 				Default:     "1",
 				Description: "A change in value for this field will force recreating the resource",
 			},
+			"client_properties": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "TODO",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"values": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -204,6 +225,14 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("allow_use_of_refresh_tokens", userClient.AllowUseOfRefreshTokens)
 	d.Set("one_time_usage_for_refresh_tokens", userClient.OneTimeUsageForRefreshTokens)
 	d.Set("refresh_token_life_time", userClient.RefreshTokensLifeTime)
+	clientProperties := make([]interface{}, len(userClient.ClientProperties))
+	for i, s := range userClient.ClientProperties {
+		clientPropertiesMap := make(map[string]interface{})
+		clientPropertiesMap["type"] = s.Type
+		clientPropertiesMap["values"] = s.Values
+		clientProperties[i] = clientPropertiesMap
+	}
+	d.Set("client_claims", clientProperties)
 
 	return nil
 }
@@ -253,6 +282,25 @@ func ReadUserClientFromResourceData(d *schema.ResourceData) *elvidapiclient.User
 		AllowUseOfRefreshTokens:          d.Get("allow_use_of_refresh_tokens").(bool),
 		OneTimeUsageForRefreshTokens:     d.Get("one_time_usage_for_refresh_tokens").(bool),
 		RefreshTokensLifeTime:            d.Get("refresh_token_life_time").(int),
+		ClientProperties:                 readClientPropertiesFromResourceData(d),
 	}
 	return userClient
+}
+
+func readClientPropertiesFromResourceData(d *schema.ResourceData) []elvidapiclient.ClientProperty {
+	rawList := d.Get("client_properties").(*schema.Set).List()
+	clientProperties := make([]elvidapiclient.ClientProperty, len(rawList))
+	for i, v := range rawList {
+		clientPropertyMap := v.(map[string]interface{})
+		claimsInterface := clientPropertyMap["values"].([]interface{})
+		values := make([]string, len(claimsInterface))
+		for i, v := range claimsInterface {
+			values[i] = v.(string)
+		}
+		clientProperties[i] = elvidapiclient.ClientProperty{
+			Type:   fmt.Sprintf("%v", clientPropertyMap["type"]),
+			Values: values,
+		}
+	}
+	return clientProperties
 }
