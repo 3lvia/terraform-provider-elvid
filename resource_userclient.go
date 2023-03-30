@@ -158,7 +158,7 @@ func resourceUserClient() *schema.Resource {
 				Description: "TODO",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": {
+						"key": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -298,7 +298,7 @@ func readClientPropertiesFromResourceData(d *schema.ResourceData) []elvidapiclie
 			values[i] = v.(string)
 		}
 		clientProperties[i] = elvidapiclient.ClientProperty{
-			Type:   fmt.Sprintf("%v", clientPropertyMap["type"]),
+			Type:   fmt.Sprintf("%v", clientPropertyMap["key"]),
 			Values: values,
 		}
 	}

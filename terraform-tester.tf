@@ -39,10 +39,6 @@ resource "elvid_userclient" "userclient" {
     allow_use_of_refresh_tokens = false
     one_time_usage_for_refresh_tokens = true
     refresh_token_life_time = 2592000
-    client_properties {
-      type = "ad-groups-filter"
-      values = ["a", "b", "v"]
-    }
 }
 
 # output "userclient" {
@@ -93,7 +89,7 @@ resource "elvid_userclient" "userclient" {
 module "elvid_userclient" {
   source      = "C:\\3lvia\\terraform-elvid-userclient"
   environment = "dev"
-  client_name = "test-bff"
+  client_name = "test-bf"
   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
   domains = var.domains[var.environment]
   redirect_uri_paths = [ "/silentcallback.html", "/oidc/callback"]
@@ -101,7 +97,7 @@ module "elvid_userclient" {
   elvia_ad_login_enabled         = true
   system_name      = "elvid"
   client_secret_enabled = true
-  ad-groups-filter = []
+  ad-groups-filter = null
 }
 
 ## Module machineclient

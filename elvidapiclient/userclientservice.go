@@ -116,6 +116,6 @@ type UserClient struct {
 }
 
 type ClientProperty struct {
-	Type   string   `json:"Type"`
+	Type   string   `json:"Key"`
 	Values []string `json:"Values"`
 }
