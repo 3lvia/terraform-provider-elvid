@@ -155,7 +155,7 @@ func resourceUserClient() *schema.Resource {
 			"client_properties": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "TODO",
+				Description: "Used this to set other key-value(s) properties on a client. The allowed keys to set here must be whitelisted in elvid.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
