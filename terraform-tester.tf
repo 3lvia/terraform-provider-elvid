@@ -24,7 +24,7 @@ provider "vault" {
 
 # resource "elvid_userclient" "userclient" {
 #     client_name = "test"
-#     scopes = ["openid", "ad_groups"]
+#     scopes = ["terraform-provider-elvid-tester-apiscope2", "openid", "ad_groups"]
 #     domains = var.domains[var.environment]
 #     redirect_uri_paths = ["/callback.html"]
 #     post_logout_redirect_uri_paths = ["/index.htm"]
@@ -89,7 +89,7 @@ provider "vault" {
 # module "elvid_userclient" {
 #   source      = "C:\\3lvia\\terraform-elvid-userclient"
 #   environment = "dev"
-#   client_name = "test-bf"
+#   client_name = "test-bff"
 #   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
 #   domains = var.domains[var.environment]
 #   redirect_uri_paths = [ "/silentcallback.html", "/oidc/callback"]
