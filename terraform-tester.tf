@@ -22,24 +22,24 @@ provider "vault" {
 
 ## User client
 
-resource "elvid_userclient" "userclient" {
-    client_name = "test"
-    scopes = ["openid", "ad_groups"]
-    domains = var.domains[var.environment]
-    redirect_uri_paths = ["/callback.html"]
-    post_logout_redirect_uri_paths = ["/index.htm"]
-    bankid_login_enabled = true
-    local_login_enabled = true
-    elvia_ad_login_enabled = true
-    test_user_login_enabled = false
-    require_client_secret = false
-    access_token_life_time = 3598
-    always_include_user_claims_in_id_token = true
-    client_name_language_key = null
-    allow_use_of_refresh_tokens = false
-    one_time_usage_for_refresh_tokens = true
-    refresh_token_life_time = 2592000
-}
+# resource "elvid_userclient" "userclient" {
+#     client_name = "test"
+#     scopes = ["openid", "ad_groups"]
+#     domains = var.domains[var.environment]
+#     redirect_uri_paths = ["/callback.html"]
+#     post_logout_redirect_uri_paths = ["/index.htm"]
+#     bankid_login_enabled = true
+#     local_login_enabled = true
+#     elvia_ad_login_enabled = true
+#     test_user_login_enabled = false
+#     require_client_secret = false
+#     access_token_life_time = 3598
+#     always_include_user_claims_in_id_token = true
+#     client_name_language_key = null
+#     allow_use_of_refresh_tokens = false
+#     one_time_usage_for_refresh_tokens = true
+#     refresh_token_life_time = 2592000
+# }
 
 # output "userclient" {
 #   value = elvid_userclient.userclient
@@ -86,19 +86,18 @@ resource "elvid_userclient" "userclient" {
 
 ## Module userclient
 ## Note that this require vault setup. Se readme
-module "elvid_userclient" {
-  source      = "C:\\3lvia\\terraform-elvid-userclient"
-  environment = "dev"
-  client_name = "test-bf"
-  scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
-  domains = var.domains[var.environment]
-  redirect_uri_paths = [ "/silentcallback.html", "/oidc/callback"]
-  post_logout_redirect_uri_paths = [""]
-  elvia_ad_login_enabled         = true
-  system_name      = "elvid"
-  client_secret_enabled = true
-  ad_groups_filter = null
-}
+# module "elvid_userclient" {
+#   source      = "C:\\3lvia\\terraform-elvid-userclient"
+#   environment = "dev"
+#   client_name = "test-bf"
+#   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
+#   domains = var.domains[var.environment]
+#   redirect_uri_paths = [ "/silentcallback.html", "/oidc/callback"]
+#   post_logout_redirect_uri_paths = [""]
+#   elvia_ad_login_enabled         = true
+#   system_name      = "elvid"
+#   client_secret_enabled = true
+# }
 
 ## Module machineclient
 ## Note that this require vault setup. Se readme
