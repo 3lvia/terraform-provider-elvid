@@ -97,7 +97,7 @@ module "elvid_userclient" {
   elvia_ad_login_enabled         = true
   system_name      = "elvid"
   client_secret_enabled = true
-  ad-groups-filter = null
+  ad_groups_filter = null
 }
 
 ## Module machineclient
