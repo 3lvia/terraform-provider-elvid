@@ -232,7 +232,7 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 		clientPropertiesMap["values"] = s.Values
 		clientProperties[i] = clientPropertiesMap
 	}
-	d.Set("client_claims", clientProperties)
+	d.Set("client_properties", clientProperties)
 
 	return nil
 }
@@ -292,9 +292,9 @@ func readClientPropertiesFromResourceData(d *schema.ResourceData) []elvidapiclie
 	clientProperties := make([]elvidapiclient.ClientProperty, len(rawList))
 	for i, v := range rawList {
 		clientPropertyMap := v.(map[string]interface{})
-		claimsInterface := clientPropertyMap["values"].([]interface{})
-		values := make([]string, len(claimsInterface))
-		for i, v := range claimsInterface {
+		valuesInterface := clientPropertyMap["values"].([]interface{})
+		values := make([]string, len(valuesInterface))
+		for i, v := range valuesInterface {
 			values[i] = v.(string)
 		}
 		clientProperties[i] = elvidapiclient.ClientProperty{
