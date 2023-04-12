@@ -94,22 +94,28 @@ func DeleteUserClient(elvidAuthority string, accessTokenAD string, id string) er
 }
 
 type UserClient struct {
-	Id                               int      `json:"Id"`
-	ClientId                         string   `json:"ClientId"`
-	ClientName                       string   `json:"ClientName"`
-	Scopes                           []string `json:"Scopes"`
-	Domains                          []string `json:"Domains"`
-	RedirectUriPaths                 []string `json:"RedirectUriPaths"`
-	PostLogoutRedirectUriPaths       []string `json:"PostLogoutRedirectUriPaths"`
-	BankIDLoginEnabled               bool     `json:"BankIDLoginEnabled"`
-	LocalLoginEnabled                bool     `json:"LocalLoginEnabled"`
-	ElviaADLoginEnabled              bool     `json:"ElviaADLoginEnabled"`
-	TestUserLoginEnabled             bool     `json:"TestUserLoginEnabled"`
-	RequireClientSecret              bool     `json:"RequireClientSecret"`
-	AccessTokenLifetime              int      `json:"AccessTokenLifetime"`
-	AlwaysIncludeUserClaimsInIdToken bool     `json:"AlwaysIncludeUserClaimsInIdToken"`
-	ClientNameLanguageKey            string   `json:"ClientNameLanguageKey"`
-	AllowUseOfRefreshTokens          bool     `json:"AllowUseOfRefreshTokens"`
-	OneTimeUsageForRefreshTokens     bool     `json:"OneTimeUsageForRefreshTokens"`
-	RefreshTokensLifeTime            int      `json:"RefreshTokensLifeTime"`
+	Id                               int              `json:"Id"`
+	ClientId                         string           `json:"ClientId"`
+	ClientName                       string           `json:"ClientName"`
+	Scopes                           []string         `json:"Scopes"`
+	Domains                          []string         `json:"Domains"`
+	RedirectUriPaths                 []string         `json:"RedirectUriPaths"`
+	PostLogoutRedirectUriPaths       []string         `json:"PostLogoutRedirectUriPaths"`
+	BankIDLoginEnabled               bool             `json:"BankIDLoginEnabled"`
+	LocalLoginEnabled                bool             `json:"LocalLoginEnabled"`
+	ElviaADLoginEnabled              bool             `json:"ElviaADLoginEnabled"`
+	TestUserLoginEnabled             bool             `json:"TestUserLoginEnabled"`
+	RequireClientSecret              bool             `json:"RequireClientSecret"`
+	AccessTokenLifetime              int              `json:"AccessTokenLifetime"`
+	AlwaysIncludeUserClaimsInIdToken bool             `json:"AlwaysIncludeUserClaimsInIdToken"`
+	ClientNameLanguageKey            string           `json:"ClientNameLanguageKey"`
+	AllowUseOfRefreshTokens          bool             `json:"AllowUseOfRefreshTokens"`
+	OneTimeUsageForRefreshTokens     bool             `json:"OneTimeUsageForRefreshTokens"`
+	RefreshTokensLifeTime            int              `json:"RefreshTokensLifeTime"`
+	ClientProperties                 []ClientProperty `json:"ClientProperties"`
+}
+
+type ClientProperty struct {
+	Type   string   `json:"Key"`
+	Values []string `json:"Values"`
 }

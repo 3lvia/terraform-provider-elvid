@@ -87,6 +87,7 @@ provider "vault" {
 ## Module userclient
 ## Note that this require vault setup. Se readme
 # module "elvid_userclient" {
+#   # # source  = "app.terraform.io/Elvia/userclient/elvid"
 #   source      = "C:\\3lvia\\terraform-elvid-userclient"
 #   environment = "dev"
 #   client_name = "test-bff"
@@ -97,6 +98,7 @@ provider "vault" {
 #   elvia_ad_login_enabled         = true
 #   system_name      = "elvid"
 #   client_secret_enabled = true
+#   ad_groups_filter = ["test"]
 # }
 
 ## Module machineclient
