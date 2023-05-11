@@ -29,9 +29,10 @@ func resourceClientSecret() *schema.Resource {
 				Description: "A change in value for this field will force recreating the resource",
 			},
 			"secret_value": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"hashed_value_starts_with": &schema.Schema{
 				Type:     schema.TypeString,
