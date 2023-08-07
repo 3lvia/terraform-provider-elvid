@@ -62,25 +62,16 @@ provider_installation {
 ```
 
 ## Adding terraform.tfvars to terraform-tester
-Create {repo-root}/terraform.tfvars and add these variables.
-Secret values can be found in vault-dev in the path /elvid/kv/manual/terraform_provider_elvid_adcredentials
+Create {repo-root}/terraform.tfvars and add the content found in vault-dev in the path /elvid/kv/manual/terraform-provider-elvid-local-credentials with key terraform.tfvars
 
+The will look something like
 ```
 terraform_sp_client_id = "replaceme"
 terraform_sp_client_secret = "replaceme"
 tenant_id = "replaceme"
-```
-
-### Setup vault provider if needed
-If you are using the machineclient or userclient modules in terrform-tester.tf, you alse need to setup vault provider.
-Uncommment vault-provider in terrform-tester.tf.
-
-Add elvid_dev_vault_role_id to terraform.tfvars.
-Secret values can be found in vault-dev in the path /elvid/kv/vault/role_id 
-```
 elvid_dev_vault_role_id = "replaceme"
 ```
- 
+
 Note that terraform.tfvars is added to .gitignore. Make sure to newer publish these secrets. This is a public repository.
 
 # Running locally

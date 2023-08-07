@@ -24,12 +24,13 @@ provider "vault" {
 
 # resource "elvid_userclient" "userclient" {
 #     client_name = "test"
-#     scopes = ["terraform-provider-elvid-tester-apiscope2", "openid", "ad_groups"]
+#     scopes = ["louvre.imageapi.useraccess", "profile", "openid", "ad_groups"]
 #     domains = var.domains[var.environment]
 #     redirect_uri_paths = ["/callback.html"]
 #     post_logout_redirect_uri_paths = ["/index.htm"]
 #     bankid_login_enabled = true
 #     local_login_enabled = true
+#     idporten_login_enabled = true
 #     elvia_ad_login_enabled = true
 #     test_user_login_enabled = false
 #     require_client_secret = false
