@@ -16,7 +16,7 @@ func PostRequest(url string, accessToken string, jsonValue []byte) (*http.Respon
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer " + accessToken)
 	req.Header.Set("Content-Type", "application/json")
 	return myClient.Do(req)
 }
