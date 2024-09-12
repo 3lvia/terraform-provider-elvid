@@ -11,3 +11,4 @@ terraform-tester/crash.log
 terraform-tester/custom-log.text
 terraform-tester/.terraform.lock.hcl
 .terraform.lock.hcl
+/.idea

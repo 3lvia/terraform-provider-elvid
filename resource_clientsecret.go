@@ -79,7 +79,7 @@ func resourceClientSecretRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if providerInput.RunHashedSecretValidation && clientSecret.HashedValueStartsWith != d.Get("hashed_value_starts_with").(string) {
-		return fmt.Errorf("The secret was found but hashed_value_starts_with was not as expected, meaning the secret must have changed without terraform knowning. Either fix the state or secret manuelly, or recreate the secret. Recreate the secret by TEMPERARY setting run_hashed_secret_validation = false in the provider and changing resource_taint_version on the resource")
+		return fmt.Errorf("The secret was found but hashed_value_starts_with was not as expected, meaning the secret must have changed without terraform knowing. Either fix the state or secret manually, or recreate the secret. Recreate the secret by TEMPORARY setting run_hashed_secret_validation = false in the provider and changing resource_taint_version on the resource")
 	}
 
 	return nil
