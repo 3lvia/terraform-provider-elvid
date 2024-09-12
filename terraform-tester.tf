@@ -2,12 +2,12 @@
 
 # Provider
 provider "elvid" {
-  tenant_id = var.tenant_id
-  terraform_sp_client_id = var.terraform_sp_client_id
+  tenant_id                  = var.tenant_id
+  terraform_sp_client_id     = var.terraform_sp_client_id
   terraform_sp_client_secret = var.terraform_sp_client_secret
-  environment = var.environment
-  override_elvid_authority = "https://localhost:44383"
-  # override_elvid_authority = "https://elvid.dev-elvia.io"
+  environment                = var.environment
+  # override_elvid_authority   = "https://localhost:44383"
+  override_elvid_authority = "https://elvid.dev-elvia.io"
 }
 
 provider "vault" {
@@ -48,34 +48,38 @@ provider "vault" {
 
 ## Machine client
 
-# resource "elvid_machineclient" "machineclient" {
-#     name = "onsdag"
-#     test_user_login_enabled = true
-#     access_token_life_time = 3511
-#     resource_taint_version = "1"
-#     scopes = ["elvid.verifydeployment"]
-#     client_claims {
-#       type = "edna_topics_read"
-#       values = ["topic1"]
-#     }
-#     client_claims {
-#       type = "edna_topics_write"
-#       values = ["topicA", "topicB", "D"]
-#     }
-# }
+resource "elvid_machineclient" "machineclient10" {
+  name                    = "2024-06-08-6"
+  test_user_login_enabled = true
+  access_token_life_time  = 3511
+  scopes                  = ["elvid.verifydeployment"]
+  client_claims {
+    type   = "client_dna_topics_read"
+    values = ["topic1"]
+  }
+  client_claims {
+    type   = "client_edna_topics_write"
+    values = ["topicA", "topicB", "D"]
+  }
+  lifecycle {
+    
+    prevent_destroy = true
 
-# resource "elvid_clientsecret" "clientsecret" {
-#     client_id = elvid_machineclient.machineclient.id
-#     resource_taint_version = "2"
-# }
+  }
+}
 
-# output "machineclient" {
-#   value = elvid_machineclient.machineclient
-# }
+resource "elvid_clientsecret" "clientsecret" {
+    client_id = elvid_machineclient.machineclient10.id
+    resource_taint_version = "2"
+}
 
-# output "clientsecret" {
-#   value = elvid_clientsecret.clientsecret
-# }
+output "machineclient" {
+  value = elvid_machineclient.machineclient10.client_id
+}
+
+output "clientsecret" {
+  value = nonsensitive(elvid_clientsecret.clientsecret.secret_value) 
+}
 
 ## API scope
 # resource "elvid_apiscope" "apiscope" {
@@ -86,7 +90,6 @@ provider "vault" {
 # }
 
 ## Module userclient
-## Note that this require vault setup. Se readme
 # module "elvid_userclient" {
 #   # # source  = "app.terraform.io/Elvia/userclient/elvid"
 #   source      = "C:\\3lvia\\terraform-elvid-userclient"
@@ -102,8 +105,18 @@ provider "vault" {
 #   ad_groups_filter = ["test"]
 # }
 
+# module "elvid_userclient" {
+#   source      = "C:\\3lvia\\terraform-elvid-bff-userclient"
+#   environment = "dev"
+#   client_name = "test-bff"
+#   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
+#   domains = var.domains[var.environment]
+#   elvia_ad_login_enabled         = true
+#   system_name      = "elvid"
+#   ad_groups_filter = ["test"]
+# }
+
 ## Module machineclient
-## Note that this require vault setup. Se readme
 # module "elvid_machineclient" {
 #   # source  = "app.terraform.io/Elvia/machineclient/elvid"
 #   source      = "C:\\3lvia\\terraform-elvid-machineclient"
@@ -145,9 +158,9 @@ variable "system_name" {
 }
 
 variable "domains" {
-  type = map
+  type = map(any)
   default = {
-    "dev" = ["http://localhost:{port}", "https://examplesystem.dev-elvia.io"]
+    "dev"  = ["http://localhost:{port}", "https://examplesystem.dev-elvia.io"]
     "test" = ["https://examplesystem.test-elvia.io"]
     "prod" = ["https://examplesystem.elvia.io"]
   }

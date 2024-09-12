@@ -52,17 +52,17 @@ func Provider() *schema.Provider {
 	}
 }
 
-func getElvIDAuthoriry(overrideElvidAuthority string, environemnt string) string {
+func getElvIDAuthority(overrideElvidAuthority string, environment string) string {
 	if overrideElvidAuthority != "" {
 		return overrideElvidAuthority
-	} else if environemnt == "prod" {
+	} else if environment == "prod" {
 		return "https://elvid.elvia.io"
 	} else {
 		return "https://elvid.test-elvia.io"
 	}
 }
 
-// note that the interface{} response from this  will be accessable from the resources as m interface{}
+// note that the interface{} response from this  will be accessible from the resources as m interface{}
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	tenantID := d.Get("tenant_id").(string)
 	environment := d.Get("environment").(string)
@@ -70,7 +70,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	terraformSpClientSecret := d.Get("terraform_sp_client_secret").(string)
 	overrideElvidAuthority := d.Get("override_elvid_authority").(string)
 
-	elvidAuthority := getElvIDAuthoriry(overrideElvidAuthority, environment)
+	elvidAuthority := getElvIDAuthority(overrideElvidAuthority, environment)
 
 	runHashedSecretValidation := d.Get("run_hashed_secret_validation").(bool)
 	accessTokenAD, err := elvidapiclient.GetAccessTokenAD(tenantID, terraformSpClientId, terraformSpClientSecret)

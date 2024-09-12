@@ -26,7 +26,7 @@ func resourceUserClient() *schema.Resource {
 			"client_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The full name of the client. Note that ClientNameLanguageKey can be used to get a seperate language dependent name.",
+				Description: "The full name of the client. Note that ClientNameLanguageKey can be used to get a separate language dependent name.",
 			},
 			"scopes": {
 				Type:     schema.TypeSet,
@@ -119,7 +119,7 @@ func resourceUserClient() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     nil,
-				Description: "Use this to get a language dependent seperate name for the client. That name could be used instead of the client name in places like the BackToClient-button that is showed for an signed in user in elvid. Note that a corresponding key/value for 'ClientName{client_name_language_key}' must also exist in elvid's language files. Eg language.nb.json --> key: 'ClientNameMinSide', value: 'MinSide'",
+				Description: "Use this to get a language dependent separate name for the client. That name could be used instead of the client name in places like the BackToClient-button that is showed for an signed in user in elvid. Note that a corresponding key/value for 'ClientName{client_name_language_key}' must also exist in elvid's language files. Eg language.nb.json --> key: 'ClientNameMinSide', value: 'MinSide'",
 			},
 			"allow_use_of_refresh_tokens": &schema.Schema{
 				Type:        schema.TypeBool,
