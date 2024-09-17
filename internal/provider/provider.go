@@ -2,6 +2,8 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -21,12 +23,10 @@ func (p *ElvidProviderInput) Schema(_ context.Context, _ provider.SchemaRequest,
 			"tenant_id": schema.StringAttribute{
 				Required:    true,
 				Description: "Azure tenant id",
-				// 				Validators:  []validators.String{validators.StringUUID()},
 			},
 			"terraform_sp_client_id": schema.StringAttribute{
 				Required:    true,
 				Description: "The Client ID for terraform service principal",
-				// 				Validators:  []validators.String{validators.StringUUID()},
 			},
 			"terraform_sp_client_secret": schema.StringAttribute{
 				Required:    true,
@@ -72,12 +72,20 @@ func (p *ElvidProviderInput) Configure(ctx context.Context, req provider.Configu
 		return
 	}
 
+	runHashedSecretValidation := config.RunHashedSecretValidation.ValueBool()
+	if config.RunHashedSecretValidation.IsNull() {
+		runHashedSecretValidation = true
+	}
+
 	providerInput := &ElvidProviderInput{
 		TenantId:                  config.TenantID.ValueString(),
 		AccessTokenAD:             accessTokenAD,
 		ElvIDAuthority:            elvidAuthority,
-		RunHashedSecretValidation: config.RunHashedSecretValidation.ValueBool(),
+		RunHashedSecretValidation: runHashedSecretValidation,
 	}
+
+	serialized, _ := json.Marshal(providerInput)
+	ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
 
 	resp.DataSourceData = providerInput
 	resp.ResourceData = providerInput

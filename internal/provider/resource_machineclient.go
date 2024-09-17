@@ -7,7 +7,10 @@ import (
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -42,18 +45,21 @@ func (r *MachineClientResource) Schema(_ context.Context, _ resource.SchemaReque
 				Description: "The name of the client",
 			},
 			"test_user_login_enabled": schema.BoolAttribute{
-				Optional: true,
-				// Default:     booldefault.StaticBool(false),
+				Optional:    true,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				Description: "When this is enabled it's possible to mechanically login with a test user to this client. This is done by using grant-type password for the token endpoint. See ElvID space on confluence for details",
 			},
 			"is_delegation_client": schema.BoolAttribute{
-				Optional: true,
-				// Default:     booldefault.StaticBool(false),
+				Optional:    true,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				Description: "When this is enabled the client can only use the delegation grant type. This is used when a already logged inn user will create a long-lived delegation access_token",
 			},
 			"access_token_life_time": schema.Int64Attribute{
-				Optional: true,
-				// Default:     int64default.StaticInt64(3600),
+				Optional:    true,
+				Computed:    true,
+				Default:     int64default.StaticInt64(3600),
 				Description: "Number of seconds before an access token expires. Default and maximum is 3600 seconds (1 hour) for regular machine clients.",
 			},
 			"scopes": schema.SetAttribute{
@@ -64,17 +70,24 @@ func (r *MachineClientResource) Schema(_ context.Context, _ resource.SchemaReque
 			"client_id": schema.StringAttribute{
 				Computed:    true,
 				Description: "The client_id of the client, used during client_credentials auth. Note this is different from the (entity) id of the client",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"resource_taint_version": schema.StringAttribute{
 				Optional: true,
-				// 				PlanModifiers: []planmodifier.String{
-				//                     stringplanmodifier.RequiresReplace()
-				//                 },
-				// Default:     stringdefault.StaticString("1"),
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+				Default:     stringdefault.StaticString("1"),
 				Description: "A change in value for this field will force recreating the resource",
 			},
 			"token_endpoint": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"client_claims": schema.SetNestedAttribute{
 				Optional:    true,
