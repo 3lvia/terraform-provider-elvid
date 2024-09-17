@@ -60,12 +60,6 @@ func resourceUserClient() *schema.Resource {
 				},
 				Description: "The path part of a PostLogoutRedirectUri, each of these will be combined with each of the domains. After logout ElvID is only allowed to send the user back to the client with one of these uris.",
 			},
-			"bankid_login_enabled": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Enable to allow user to log in with BankID.",
-			},
 			"idporten_login_enabled": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -219,7 +213,6 @@ func resourceUserClientRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("domains", userClient.Domains)
 	d.Set("redirect_uri_paths", userClient.RedirectUriPaths)
 	d.Set("post_logout_redirect_uri_paths", userClient.PostLogoutRedirectUriPaths)
-	d.Set("bankid_login_enabled", userClient.BankIDLoginEnabled)
 	d.Set("idporten_login_enabled", userClient.IdPortenLoginEnabled)
 	d.Set("local_login_enabled", userClient.LocalLoginEnabled)
 	d.Set("elvia_ad_login_enabled", userClient.ElviaADLoginEnabled)
@@ -278,7 +271,6 @@ func ReadUserClientFromResourceData(d *schema.ResourceData) *elvidapiclient.User
 		Domains:                          getStringArrayFromResourceSet(d, "domains"),
 		RedirectUriPaths:                 getStringArrayFromResourceSet(d, "redirect_uri_paths"),
 		PostLogoutRedirectUriPaths:       getStringArrayFromResourceSet(d, "post_logout_redirect_uri_paths"),
-		BankIDLoginEnabled:               d.Get("bankid_login_enabled").(bool),
 		IdPortenLoginEnabled:             d.Get("idporten_login_enabled").(bool),
 		LocalLoginEnabled:                d.Get("local_login_enabled").(bool),
 		ElviaADLoginEnabled:              d.Get("elvia_ad_login_enabled").(bool),
