@@ -3,7 +3,7 @@ package elvidapiclient
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -16,7 +16,7 @@ func PostRequest(url string, accessToken string, jsonValue []byte) (*http.Respon
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer " + accessToken)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 	req.Header.Set("Content-Type", "application/json")
 	return myClient.Do(req)
 }
@@ -53,6 +53,6 @@ func DeleteRequest(url string, accessToken string) (*http.Response, error) {
 }
 
 func ElvidErrorResponse(response *http.Response, url string) error {
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	return fmt.Errorf("ElvID returned StatusCode %v for (%s), message: %s", response.StatusCode, url, data)
 }

@@ -3,7 +3,7 @@ package elvidapiclient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 func CreateMachineClient(elvidAuthority string, accessTokenAD string, machineClientInput *MachineClient) (*MachineClient, error) {
@@ -21,7 +21,7 @@ func CreateMachineClient(elvidAuthority string, accessTokenAD string, machineCli
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var machineClient MachineClient
@@ -50,7 +50,7 @@ func ReadMachineClient(elvidAuthority string, accessTokenAD string, id string) (
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var machineClient MachineClient
@@ -77,7 +77,7 @@ func UpdateMachineClient(elvidAuthority string, accessTokenAD string, machineCli
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var machineClientResponse MachineClient
