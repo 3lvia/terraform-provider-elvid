@@ -118,7 +118,7 @@ func (r *ClientSecretResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	state.FromElvidApiClient(clientSecret)
+	state.FromElvidApiClientOutput(clientSecret)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -149,16 +149,7 @@ type ClientSecretResource struct {
 	HashedValueStartsWith types.String `tfsdk:"hashed_value_starts_with"`
 }
 
-// func (cs *ClientSecretResource) ToElvidApiClient() *elvidapiclient.ClientSecret {
-// 	return &elvidapiclient.ClientSecret{
-// 		ClientID:              cs.ClientID.ValueString(),
-// 		ResourceTaintVersion:  cs.ResourceTaintVersion.ValueString(),
-// 		SecretValue:           cs.SecretValue.ValueString(),
-// 		HashedValueStartsWith: cs.HashedValueStartsWith.ValueString(),
-// 	}
-// }
-
-func (cs *ClientSecretResource) FromElvidApiClient(clientSecret *elvidapiclient.ClientSecret) {
+func (cs *ClientSecretResource) FromElvidApiClientOutput(clientSecret *elvidapiclient.ClientSecret) {
 	cs.HashedValueStartsWith = types.StringValue(clientSecret.HashedValueStartsWith)
 	cs.SecretValue = types.StringValue(clientSecret.Value)
 }

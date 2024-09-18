@@ -118,7 +118,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
+	machineClientInput := plan.ToElvidApiClientInput(ctx, resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -169,7 +169,7 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
+	machineClientInput := plan.ToElvidApiClientInput(ctx, resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -219,7 +219,7 @@ type ClientClaimsResource struct {
 	Values []types.String `tfsdk:"values"`
 }
 
-func (mc *MachineClientResource) ToElvidApiClient(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClient {
+func (mc *MachineClientResource) ToElvidApiClientInput(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClient {
 	return &elvidapiclient.MachineClient{
 		ClientName:           mc.Name.ValueString(),
 		Scopes:               convertSetToStringList(mc.Scopes),
