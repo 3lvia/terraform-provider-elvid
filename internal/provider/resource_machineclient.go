@@ -251,6 +251,10 @@ func convertSetToStringList(set types.Set) []string {
 func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics) []elvidapiclient.ClientClaim {
 	var clientClaims []elvidapiclient.ClientClaim
 
+	if len(mc.ClientClaims) == 0 {
+		return []elvidapiclient.ClientClaim{}
+	}
+
 	for _, clientClaimResource := range mc.ClientClaims {
 		// Validate and process clientClaimResource.Type
 		if clientClaimResource.Type.IsNull() || clientClaimResource.Type.IsUnknown() {
