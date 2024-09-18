@@ -280,6 +280,11 @@ func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics)
 			values = append(values, v.ValueString())
 		}
 
+		// Empty list instead of nil for no elements
+		if values == nil {
+			values = []string{}
+		}
+
 		// Create a ClientClaim object
 		aclRule := elvidapiclient.ClientClaim{
 			Type:   clientClaimResource.Type.ValueString(),
