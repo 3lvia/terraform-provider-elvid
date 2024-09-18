@@ -38,8 +38,7 @@ func (p *ElvidProviderInput) Schema(_ context.Context, _ provider.SchemaRequest,
 				Description: "elvid_authority is as default set based on environment ( var.environment == 'prod' ? 'https://elvid.elvia.io' : 'https://elvid.test-elvia.io'). Use this to override the default.",
 			},
 			"run_hashed_secret_validation": schema.BoolAttribute{
-				Optional: true,
-				// Default:     booldefault.StaticBool(true), must be done in Configure
+				Optional:    true,
 				Description: "Only turn this off temporarily to recreate a client secret if the hashed_secret_validation fails",
 			},
 		},

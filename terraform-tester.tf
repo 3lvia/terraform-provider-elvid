@@ -55,14 +55,14 @@ resource "elvid_machineclient" "machineclient10" {
   access_token_life_time  = 3512
   scopes                  = ["elvid.verifydeployment"]
   resource_taint_version  = "2"
-  client_claims {
-    type   = "client_dna_topics_read"
-    values = ["topic1"]
-  }
-  client_claims {
-    type   = "client_edna_topics_write"
-    values = ["topicA", "topicB", "D"]
-  }
+  # client_claims {
+  #   type   = "client_dna_topics_read1"
+  #   values = ["topic1"]
+  # }
+  # client_claims {
+  #   type   = "client_edna_topics_write"
+  #   values = ["topicA", "topicB", "D"]
+  # }
 }
 
 # resource "elvid_clientsecret" "clientsecret" {

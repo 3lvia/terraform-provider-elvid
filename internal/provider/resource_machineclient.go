@@ -121,6 +121,10 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	machineClient, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating machineclient resulted in an error", err.Error())
@@ -168,6 +172,10 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	machineClientInput.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
 	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
@@ -214,40 +222,69 @@ type BlockObject struct {
 }
 
 func (mc *MachineClientResource) ToElvidApiClient(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClient {
-	var list []elvidapiclient.ClientClaim
-	for _, clientClaimResource := range mc.ClientClaims {
-		aclRule := elvidapiclient.ClientClaim{
-			Type:   clientClaimResource.Type.ValueString(),
-			Values: []string{"test_value_1", "test_value_2"},
-		}
-
-		list = append(list, aclRule)
-	}
-
 	return &elvidapiclient.MachineClient{
 		ClientName:           mc.Name.ValueString(),
-		Scopes:               convertSetToStringSlice(mc.Scopes),
+		Scopes:               convertSetToStringList(mc.Scopes),
 		TestUserLoginEnabled: mc.TestUserLoginEnabled.ValueBool(),
 		AccessTokenLifeTime:  int(mc.AccessTokenLifeTime.ValueInt64()),
 		IsDelegationClient:   mc.IsDelegationClient.ValueBool(),
-		ClientClaims:         list,
+		ClientClaims:         mc.buildClientClaims(diagnostics),
 	}
 }
 
 func (mc *MachineClientResource) FromElvidApiClient(client *elvidapiclient.MachineClient) {
 	mc.Name = types.StringValue(client.ClientName)
-	// mc.Scopes = convertStringSliceToSet(client.Scopes)
 	mc.TestUserLoginEnabled = types.BoolValue(client.TestUserLoginEnabled)
 	mc.AccessTokenLifeTime = types.Int64Value(int64(client.AccessTokenLifeTime))
 	mc.IsDelegationClient = types.BoolValue(client.IsDelegationClient)
-	// mc.ClientClaims = convertClientClaimsToSet(client.ClientClaims)
 	mc.ClientID = types.StringValue(client.ClientId)
 }
 
-func convertSetToStringSlice(set types.Set) []string {
+func convertSetToStringList(set types.Set) []string {
 	var result []string
 	for _, v := range set.Elements() {
 		result = append(result, v.(types.String).ValueString())
 	}
 	return result
+}
+
+func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics) []elvidapiclient.ClientClaim {
+	var clientClaims []elvidapiclient.ClientClaim
+
+	for _, clientClaimResource := range mc.ClientClaims {
+		// Validate and process clientClaimResource.Type
+		if clientClaimResource.Type.IsNull() || clientClaimResource.Type.IsUnknown() {
+			diagnostics.AddError(
+				"Invalid Client Claim Type",
+				"Client claim type must be provided and cannot be null or unknown.",
+			)
+			continue
+		}
+
+		// Initialize a slice to hold the values
+		var values []string
+
+		// Iterate over each value in clientClaimResource.Values
+		for _, v := range clientClaimResource.Values {
+			if v.IsNull() || v.IsUnknown() {
+				diagnostics.AddWarning(
+					"Unknown or Null Value",
+					"One of the values in clientClaimResource.Values is null or unknown and will be skipped.",
+				)
+				continue
+			}
+			values = append(values, v.ValueString())
+		}
+
+		// Create a ClientClaim object
+		aclRule := elvidapiclient.ClientClaim{
+			Type:   clientClaimResource.Type.ValueString(),
+			Values: values,
+		}
+
+		// Append the ClientClaim to the slice
+		clientClaims = append(clientClaims, aclRule)
+	}
+
+	return clientClaims
 }
