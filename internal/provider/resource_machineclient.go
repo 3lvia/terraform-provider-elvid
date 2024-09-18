@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -89,17 +90,20 @@ func (r *MachineClientResource) Schema(_ context.Context, _ resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"client_claims": schema.SetNestedAttribute{
-				Optional:    true,
-				Description: "Client claims is claims for the client that will always be added in the access_token. The claim type must start with 'client_'.",
-				NestedObject: schema.NestedAttributeObject{
+		},
+		Blocks: map[string]schema.Block{
+			"client_claims": schema.SetNestedBlock{
+				Description: "Client claims that will always be added in the access_token. The claim type must start with 'client_'.",
+				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"type": schema.StringAttribute{
-							Required: true,
+							Required:    true,
+							Description: "Type of the claim, must start with 'client_'.",
 						},
 						"values": schema.ListAttribute{
 							ElementType: types.StringType,
 							Required:    true,
+							Description: "List of values associated with the claim.",
 						},
 					},
 				},
@@ -116,7 +120,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClient()
+	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
 	machineClient, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating machineclient resulted in an error", err.Error())
@@ -163,7 +167,7 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClient()
+	machineClientInput := plan.ToElvidApiClient(ctx, resp.Diagnostics)
 	machineClientInput.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
 	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
@@ -192,26 +196,41 @@ func (r *MachineClientResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 type MachineClientResource struct {
-	Id                   types.String `tfsdk:"id"`
-	Name                 types.String `tfsdk:"name"`
-	TestUserLoginEnabled types.Bool   `tfsdk:"test_user_login_enabled"`
-	IsDelegationClient   types.Bool   `tfsdk:"is_delegation_client"`
-	AccessTokenLifeTime  types.Int64  `tfsdk:"access_token_life_time"`
-	Scopes               types.Set    `tfsdk:"scopes"`
-	ClientID             types.String `tfsdk:"client_id"`
-	ResourceTaintVersion types.String `tfsdk:"resource_taint_version"`
-	TokenEndpoint        types.String `tfsdk:"token_endpoint"`
-	ClientClaims         types.Set    `tfsdk:"client_claims"`
+	Id                   types.String  `tfsdk:"id"`
+	Name                 types.String  `tfsdk:"name"`
+	TestUserLoginEnabled types.Bool    `tfsdk:"test_user_login_enabled"`
+	IsDelegationClient   types.Bool    `tfsdk:"is_delegation_client"`
+	AccessTokenLifeTime  types.Int64   `tfsdk:"access_token_life_time"`
+	Scopes               types.Set     `tfsdk:"scopes"`
+	ClientID             types.String  `tfsdk:"client_id"`
+	ResourceTaintVersion types.String  `tfsdk:"resource_taint_version"`
+	TokenEndpoint        types.String  `tfsdk:"token_endpoint"`
+	ClientClaims         []BlockObject `tfsdk:"client_claims"`
 }
 
-func (mc *MachineClientResource) ToElvidApiClient() *elvidapiclient.MachineClient {
+type BlockObject struct {
+	Type   types.String   `tfsdk:"type"`
+	Values []types.String `tfsdk:"values"`
+}
+
+func (mc *MachineClientResource) ToElvidApiClient(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClient {
+	var list []elvidapiclient.ClientClaim
+	for _, clientClaimResource := range mc.ClientClaims {
+		aclRule := elvidapiclient.ClientClaim{
+			Type:   clientClaimResource.Type.ValueString(),
+			Values: []string{"test_value_1", "test_value_2"},
+		}
+
+		list = append(list, aclRule)
+	}
+
 	return &elvidapiclient.MachineClient{
 		ClientName:           mc.Name.ValueString(),
 		Scopes:               convertSetToStringSlice(mc.Scopes),
 		TestUserLoginEnabled: mc.TestUserLoginEnabled.ValueBool(),
 		AccessTokenLifeTime:  int(mc.AccessTokenLifeTime.ValueInt64()),
 		IsDelegationClient:   mc.IsDelegationClient.ValueBool(),
-		ClientClaims:         convertSetToClientClaims(), // TODO
+		ClientClaims:         list,
 	}
 }
 
@@ -231,45 +250,4 @@ func convertSetToStringSlice(set types.Set) []string {
 		result = append(result, v.(types.String).ValueString())
 	}
 	return result
-}
-
-// func convertStringSliceToSet(slice []string) types.Set {
-// 	var elements []attr.Value
-// 	for _, v := range slice {
-// 		elements = append(elements, types.StringValue(v))
-// 	}
-// 	return types.Set{ElementType: types.StringType, Elements: elements}
-// }
-
-// func convertSetToClientClaims(set types.Set) []elvidapiclient.ClientClaim {
-// 	var result []elvidapiclient.ClientClaim
-// 	for _, v := range set.Elements() {
-// 		claimMap := v.(types.Object)
-// 		claimType := claimMap.Attr("type").(types.String).ValueString()
-// 		values := convertSetToStringSlice(claimMap.Attr("values").(types.Set))
-// 		result = append(result, elvidapiclient.ClientClaim{Type: claimType, Values: values})
-// 	}
-// 	return result
-// }
-
-// func convertClientClaimsToSet(claims []elvidapiclient.ClientClaim) types.Set {
-// 	var elements []attr.Value
-// 	for _, claim := range claims {
-// 		claimMap := map[string]attr.Value{
-// 			"type":   types.StringValue(claim.Type),
-// 			"values": convertStringSliceToSet(claim.Values),
-// 		}
-// 		elements = append(elements, types.Object{AttrTypes: map[string]attr.Type{"type": types.StringType, "values": types.SetType{ElementType: types.StringType}}, Attrs: claimMap})
-// 	}
-// 	return types.Set{ElementType: types.ObjectType{AttrTypes: map[string]attr.Type{"type": types.StringType, "values": types.SetType{ElementType: types.StringType}}}, Elements: elements}
-// }
-
-func convertSetToClientClaims() []elvidapiclient.ClientClaim {
-
-	return []elvidapiclient.ClientClaim{
-		{
-			Type:   "client_test_type_1",
-			Values: []string{"test_value_1", "test_value_2"},
-		},
-	}
 }

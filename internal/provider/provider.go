@@ -2,8 +2,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -83,9 +81,6 @@ func (p *ElvidProviderInput) Configure(ctx context.Context, req provider.Configu
 		ElvIDAuthority:            elvidAuthority,
 		RunHashedSecretValidation: runHashedSecretValidation,
 	}
-
-	serialized, _ := json.Marshal(providerInput)
-	ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
 
 	resp.DataSourceData = providerInput
 	resp.ResourceData = providerInput

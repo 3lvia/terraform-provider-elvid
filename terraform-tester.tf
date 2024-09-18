@@ -6,8 +6,9 @@ provider "elvid" {
   terraform_sp_client_id     = var.terraform_sp_client_id
   terraform_sp_client_secret = var.terraform_sp_client_secret
   environment                = var.environment
-  override_elvid_authority   = "https://localhost:44383"
-  # override_elvid_authority = "https://elvid.dev-elvia.io"
+  #override_elvid_authority   = "https://localhost:44383"
+  override_elvid_authority = "https://elvid.dev-elvia.io"
+  run_hashed_secret_validation = false
 }
 
 provider "vault" {
@@ -49,18 +50,19 @@ provider "vault" {
 ## Machine client
 
 resource "elvid_machineclient" "machineclient10" {
-  name                    = "2024-09-17"
+  name                    = "2024-09-16"
   test_user_login_enabled = true
-  access_token_life_time  = 3511
+  access_token_life_time  = 3512
   scopes                  = ["elvid.verifydeployment"]
-  # client_claims {
-  #   type   = "client_dna_topics_read"
-  #   values = ["topic1"]
-  # }
-  # client_claims {
-  #   type   = "client_edna_topics_write"
-  #   values = ["topicA", "topicB", "D"]
-  # }
+  resource_taint_version  = "2"
+  client_claims {
+    type   = "client_dna_topics_read"
+    values = ["topic1"]
+  }
+  client_claims {
+    type   = "client_edna_topics_write"
+    values = ["topicA", "topicB", "D"]
+  }
 }
 
 # resource "elvid_clientsecret" "clientsecret" {
