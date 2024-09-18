@@ -8,7 +8,7 @@ provider "elvid" {
   environment                = var.environment
   #override_elvid_authority   = "https://localhost:44383"
   override_elvid_authority = "https://elvid.dev-elvia.io"
-  run_hashed_secret_validation = false
+  run_hashed_secret_validation = true
 }
 
 provider "vault" {
@@ -54,29 +54,29 @@ resource "elvid_machineclient" "machineclient10" {
   test_user_login_enabled = true
   access_token_life_time  = 3512
   scopes                  = ["elvid.verifydeployment"]
-  resource_taint_version  = "2"
-  # client_claims {
-  #   type   = "client_dna_topics_read1"
-  #   values = ["topic1"]
-  # }
+  resource_taint_version  = "4"
+  client_claims {
+    type   = "client_dna_topics_read12"
+    values = ["topicA", "topicB", "C"]
+  }
   # client_claims {
   #   type   = "client_edna_topics_write"
   #   values = ["topicA", "topicB", "D"]
   # }
 }
 
-# resource "elvid_clientsecret" "clientsecret" {
-#   client_id              = elvid_machineclient.machineclient10.id
-#   resource_taint_version = "2"
-# }
+resource "elvid_clientsecret" "clientsecret" {
+  client_id              = elvid_machineclient.machineclient10.id
+  resource_taint_version = "8"
+}
 
-# output "machineclient" {
-#   value = elvid_machineclient.machineclient10.client_id
-# }
+output "machineclient" {
+  value = elvid_machineclient.machineclient10.client_id
+}
 
-# output "clientsecret" {
-#   value = nonsensitive(elvid_clientsecret.clientsecret.secret_value)
-# }
+output "clientsecret" {
+  value = nonsensitive(elvid_clientsecret.clientsecret.secret_value)
+}
 
 ## API scope
 # resource "elvid_apiscope" "apiscope" {

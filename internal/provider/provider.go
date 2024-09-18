@@ -111,6 +111,7 @@ func (p *ElvidProviderInput) DataSources(context.Context) []func() datasource.Da
 func (p *ElvidProviderInput) Resources(context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewMachineClientResource,
+		NewClientSecretResource,
 	}
 }
 

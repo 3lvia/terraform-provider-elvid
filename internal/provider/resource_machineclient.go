@@ -16,20 +16,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var providerInput *ElvidProviderInput
-
 func NewMachineClientResource() resource.Resource {
 	return &MachineClientResource{}
+}
+
+func (r *MachineClientResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "elvid_machineclient"
 }
 
 func (r *MachineClientResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData != nil {
 		providerInput = req.ProviderData.(*ElvidProviderInput)
 	}
-}
-
-func (r *MachineClientResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "elvid_machineclient"
 }
 
 func (r *MachineClientResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -204,19 +202,19 @@ func (r *MachineClientResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 type MachineClientResource struct {
-	Id                   types.String  `tfsdk:"id"`
-	Name                 types.String  `tfsdk:"name"`
-	TestUserLoginEnabled types.Bool    `tfsdk:"test_user_login_enabled"`
-	IsDelegationClient   types.Bool    `tfsdk:"is_delegation_client"`
-	AccessTokenLifeTime  types.Int64   `tfsdk:"access_token_life_time"`
-	Scopes               types.Set     `tfsdk:"scopes"`
-	ClientID             types.String  `tfsdk:"client_id"`
-	ResourceTaintVersion types.String  `tfsdk:"resource_taint_version"`
-	TokenEndpoint        types.String  `tfsdk:"token_endpoint"`
-	ClientClaims         []BlockObject `tfsdk:"client_claims"`
+	Id                   types.String           `tfsdk:"id"`
+	Name                 types.String           `tfsdk:"name"`
+	TestUserLoginEnabled types.Bool             `tfsdk:"test_user_login_enabled"`
+	IsDelegationClient   types.Bool             `tfsdk:"is_delegation_client"`
+	AccessTokenLifeTime  types.Int64            `tfsdk:"access_token_life_time"`
+	Scopes               types.Set              `tfsdk:"scopes"`
+	ClientID             types.String           `tfsdk:"client_id"`
+	ResourceTaintVersion types.String           `tfsdk:"resource_taint_version"`
+	TokenEndpoint        types.String           `tfsdk:"token_endpoint"`
+	ClientClaims         []ClientClaimsResource `tfsdk:"client_claims"`
 }
 
-type BlockObject struct {
+type ClientClaimsResource struct {
 	Type   types.String   `tfsdk:"type"`
 	Values []types.String `tfsdk:"values"`
 }
