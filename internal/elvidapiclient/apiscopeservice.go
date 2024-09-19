@@ -1,51 +1,41 @@
 package elvidapiclient
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func CreateOrUpdateApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, apiScopeInput *ApiScope) (*ApiScope, diag.Diagnostics) {
+func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScopeDto *ApiScopeDto) (*ApiScopeDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope", elvidAuthority)
 
-	apiScopeAsJson, _ := json.Marshal(apiScopeInput)
-
-	var diags diag.Diagnostics
-	diags.AddWarning("Calling ApiScope POST in CreateOrUpdateApiScope", "API url = "+apiUrl+", Api scope JSON = "+string(apiScopeAsJson))
+	apiScopeAsJson, _ := json.Marshal(apiScopeDto)
 
 	response, err := PostRequest(apiUrl, accessTokenAD, apiScopeAsJson)
 
 	if err != nil {
-		diags.AddError("ApiScope POST error in CreateOrUpdateApiScope", err.Error())
-		return nil, diags
+		return nil, err
 	}
 
 	if response.StatusCode != 200 {
-		diags.AddError("ApiScope POST returned http error code in CreateOrUpdateApiScope", ElvidErrorResponse(response, apiUrl).Error())
-		return nil, diags
+		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
 	data, _ := ioutil.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var apiScope ApiScope
+	var apiScope ApiScopeDto
 	err = json.Unmarshal(data, &apiScope)
 	if err != nil {
-		diags.AddError("Could not parse ApiScope POST response as JSON in CreateOrUpdateApiScope", err.Error())
-		return nil, diags
+		return nil, err
 	}
 
-	return &apiScope, diags
+	return &apiScope, nil
 }
 
-func ReadApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, name string) (*ApiScope, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
+func ReadApiScope(elvidAuthority string, accessTokenAD string, name string, diags diag.Diagnostics) (*ApiScopeDto, diag.Diagnostics) {
 	if name == "" {
 		diags.AddError("No name provided in ReadApiScope", "")
 		return nil, diags
@@ -74,7 +64,7 @@ func ReadApiScope(ctx context.Context, elvidAuthority string, accessTokenAD stri
 	data, _ := ioutil.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var apiScope ApiScope
+	var apiScope ApiScopeDto
 	err = json.Unmarshal(data, &apiScope)
 
 	if err != nil {
@@ -85,7 +75,7 @@ func ReadApiScope(ctx context.Context, elvidAuthority string, accessTokenAD stri
 	return &apiScope, diags
 }
 
-func DeleteApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, apiScopeName string) diag.Diagnostics {
+func DeleteApiScope(elvidAuthority string, accessTokenAD string, apiScopeName string) diag.Diagnostics {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, apiScopeName)
 
 	var diags diag.Diagnostics
@@ -104,13 +94,4 @@ func DeleteApiScope(ctx context.Context, elvidAuthority string, accessTokenAD st
 	}
 
 	return diags
-}
-
-// TODO: Don't use terraform type in elvidapiclient
-type ApiScope struct {
-	Name                types.String `json:"Name"`
-	Description         types.String `json:"Description"`
-	UserClaims          types.List   `json:"UserClaims"`
-	AllowMachineClients types.Bool   `json:"AllowMachineClients"`
-	AllowUserClients    types.Bool   `json:"AllowUserClients"`
 }

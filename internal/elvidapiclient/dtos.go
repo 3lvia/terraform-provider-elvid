@@ -48,3 +48,11 @@ type ClientClaimDto struct {
 	Type   string   `json:"Type"`
 	Values []string `json:"Values"`
 }
+
+type ApiScopeDto struct {
+	Name                string   `json:"Name"`
+	Description         string   `json:"Description"`
+	UserClaims          []string `json:"UserClaims"`
+	AllowMachineClients bool     `json:"AllowMachineClients"`
+	AllowUserClients    bool     `json:"AllowUserClients"`
+}
