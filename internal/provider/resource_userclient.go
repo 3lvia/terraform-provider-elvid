@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -148,7 +149,7 @@ func (r *UserClientResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Description: "Used this to set other key-value(s) properties on a client. ElvID has a whitelist of keys that are allowed to set here.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
-						"type": schema.StringAttribute{
+						"key": schema.StringAttribute{
 							Required: true,
 						},
 						"values": schema.ListAttribute{
@@ -170,15 +171,15 @@ func (r *UserClientResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	userClientInput := plan.DtoFromUserClientResource()
-	createdUserClient, err := elvidapiclient.CreateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientInput)
+	userClientRequestDto := plan.DtoFromUserClientResource(diags)
+	userClientResponseDto, err := elvidapiclient.CreateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating userclient resulted in an error", err.Error())
 		return
 	}
 
-	plan.ID = types.StringValue(strconv.Itoa(createdUserClient.Id))
-	plan.ClientID = types.StringValue(createdUserClient.ClientId)
+	plan.Id = types.StringValue(strconv.Itoa(userClientResponseDto.Id))
+	plan.ClientId = types.StringValue(userClientResponseDto.ClientId)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -192,18 +193,18 @@ func (r *UserClientResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	userClient, err := elvidapiclient.ReadUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ID.ValueString())
+	userClientResponseDto, err := elvidapiclient.ReadUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading userclient resulted in an error", err.Error())
 		return
 	}
 
-	if userClient == nil {
+	if userClientResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
-	state.UserClientResourceFromDto(userClient)
+	state.UserClientResourceFromDto(userClientResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -216,10 +217,10 @@ func (r *UserClientResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	userClientInput := plan.DtoFromUserClientResource()
-	userClientInput.Id, _ = strconv.Atoi(plan.ID.ValueString())
+	userClientRequestDto := plan.DtoFromUserClientResource(diags)
+	userClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	err := elvidapiclient.UpdateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientInput)
+	err := elvidapiclient.UpdateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating userclient resulted in an error", err.Error())
 		return
@@ -237,41 +238,41 @@ func (r *UserClientResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := elvidapiclient.DeleteUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ID.ValueString())
+	err := elvidapiclient.DeleteUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Deleting userclient resulted in an error", err.Error())
 	}
 }
 
 type UserClientResource struct {
-	ID                               types.String               `tfsdk:"id"`
-	ClientName                       types.String               `tfsdk:"client_name"`
-	Scopes                           types.Set                  `tfsdk:"scopes"`
-	Domains                          types.Set                  `tfsdk:"domains"`
-	RedirectUriPaths                 types.Set                  `tfsdk:"redirect_uri_paths"`
-	PostLogoutRedirectUriPaths       types.Set                  `tfsdk:"post_logout_redirect_uri_paths"`
-	IdPortenLoginEnabled             types.Bool                 `tfsdk:"idporten_login_enabled"`
-	LocalLoginEnabled                types.Bool                 `tfsdk:"local_login_enabled"`
-	ElviaADLoginEnabled              types.Bool                 `tfsdk:"elvia_ad_login_enabled"`
-	TestUserLoginEnabled             types.Bool                 `tfsdk:"test_user_login_enabled"`
-	RequireClientSecret              types.Bool                 `tfsdk:"require_client_secret"`
-	AccessTokenLifetime              types.Int64                `tfsdk:"access_token_life_time"`
-	AlwaysIncludeUserClaimsInIdToken types.Bool                 `tfsdk:"always_include_user_claims_in_id_token"`
-	ClientNameLanguageKey            types.String               `tfsdk:"client_name_language_key"`
-	AllowUseOfRefreshTokens          types.Bool                 `tfsdk:"allow_use_of_refresh_tokens"`
-	OneTimeUsageForRefreshTokens     types.Bool                 `tfsdk:"one_time_usage_for_refresh_tokens"`
-	RefreshTokensLifeTime            types.Int64                `tfsdk:"refresh_token_life_time"`
-	ClientID                         types.String               `tfsdk:"client_id"`
-	ResourceTaintVersion             types.String               `tfsdk:"resource_taint_version"`
-	ClientProperties                 []ClientPropertiesResource `tfsdk:"client_properties"`
+	Id                               types.String             `tfsdk:"id"`
+	ClientName                       types.String             `tfsdk:"client_name"`
+	Scopes                           types.Set                `tfsdk:"scopes"`
+	Domains                          types.Set                `tfsdk:"domains"`
+	RedirectUriPaths                 types.Set                `tfsdk:"redirect_uri_paths"`
+	PostLogoutRedirectUriPaths       types.Set                `tfsdk:"post_logout_redirect_uri_paths"`
+	IdPortenLoginEnabled             types.Bool               `tfsdk:"idporten_login_enabled"`
+	LocalLoginEnabled                types.Bool               `tfsdk:"local_login_enabled"`
+	ElviaADLoginEnabled              types.Bool               `tfsdk:"elvia_ad_login_enabled"`
+	TestUserLoginEnabled             types.Bool               `tfsdk:"test_user_login_enabled"`
+	RequireClientSecret              types.Bool               `tfsdk:"require_client_secret"`
+	AccessTokenLifetime              types.Int64              `tfsdk:"access_token_life_time"`
+	AlwaysIncludeUserClaimsInIdToken types.Bool               `tfsdk:"always_include_user_claims_in_id_token"`
+	ClientNameLanguageKey            types.String             `tfsdk:"client_name_language_key"`
+	AllowUseOfRefreshTokens          types.Bool               `tfsdk:"allow_use_of_refresh_tokens"`
+	OneTimeUsageForRefreshTokens     types.Bool               `tfsdk:"one_time_usage_for_refresh_tokens"`
+	RefreshTokensLifeTime            types.Int64              `tfsdk:"refresh_token_life_time"`
+	ClientId                         types.String             `tfsdk:"client_id"`
+	ResourceTaintVersion             types.String             `tfsdk:"resource_taint_version"`
+	ClientProperties                 []ClientPropertyResource `tfsdk:"client_properties"`
 }
 
-type ClientPropertiesResource struct {
-	Type   types.String   `tfsdk:"type"`
+type ClientPropertyResource struct {
+	Key    types.String   `tfsdk:"key"`
 	Values []types.String `tfsdk:"values"`
 }
 
-func (uc *UserClientResource) DtoFromUserClientResource() *elvidapiclient.UserClientDto {
+func (uc *UserClientResource) DtoFromUserClientResource(diagnostics diag.Diagnostics) *elvidapiclient.UserClientDto {
 	return &elvidapiclient.UserClientDto{
 		ClientName:                       uc.ClientName.ValueString(),
 		Scopes:                           convertSetToStringArray(uc.Scopes),
@@ -289,35 +290,77 @@ func (uc *UserClientResource) DtoFromUserClientResource() *elvidapiclient.UserCl
 		AllowUseOfRefreshTokens:          uc.AllowUseOfRefreshTokens.ValueBool(),
 		OneTimeUsageForRefreshTokens:     uc.OneTimeUsageForRefreshTokens.ValueBool(),
 		RefreshTokensLifeTime:            int(uc.RefreshTokensLifeTime.ValueInt64()),
-		ClientProperties:                 []elvidapiclient.ClientPropertyDto{}, //convertSetToClientProperties(uc.ClientProperties),
+		ClientProperties:                 DtoFromClientPropertyResource(uc.ClientProperties, diagnostics),
 	}
 }
 
-func (uc *UserClientResource) UserClientResourceFromDto(client *elvidapiclient.UserClientDto) {
-	uc.ClientName = types.StringValue(client.ClientName)
+func (uc *UserClientResource) UserClientResourceFromDto(clientDto *elvidapiclient.UserClientDto) {
+	uc.ClientName = types.StringValue(clientDto.ClientName)
 	// uc.Scopes = convertStringArrayToSet(client.Scopes)
 	// uc.Domains = convertStringArrayToSet(client.Domains)
 	// uc.RedirectUriPaths = convertStringArrayToSet(client.RedirectUriPaths)
 	// uc.PostLogoutRedirectUriPaths = convertStringArrayToSet(client.PostLogoutRedirectUriPaths)
-	uc.IdPortenLoginEnabled = types.BoolValue(client.IdPortenLoginEnabled)
-	uc.LocalLoginEnabled = types.BoolValue(client.LocalLoginEnabled)
-	uc.ElviaADLoginEnabled = types.BoolValue(client.ElviaADLoginEnabled)
-	uc.TestUserLoginEnabled = types.BoolValue(client.TestUserLoginEnabled)
-	uc.RequireClientSecret = types.BoolValue(client.RequireClientSecret)
-	uc.AccessTokenLifetime = types.Int64Value(int64(client.AccessTokenLifetime))
-	uc.AlwaysIncludeUserClaimsInIdToken = types.BoolValue(client.AlwaysIncludeUserClaimsInIdToken)
-	uc.ClientNameLanguageKey = types.StringValue(client.ClientNameLanguageKey)
-	uc.AllowUseOfRefreshTokens = types.BoolValue(client.AllowUseOfRefreshTokens)
-	uc.OneTimeUsageForRefreshTokens = types.BoolValue(client.OneTimeUsageForRefreshTokens)
-	uc.RefreshTokensLifeTime = types.Int64Value(int64(client.RefreshTokensLifeTime))
-	uc.ClientID = types.StringValue(client.ClientId)
-	// uc.ClientProperties = convertClientPropertiesToSet(client.ClientProperties)
+	uc.IdPortenLoginEnabled = types.BoolValue(clientDto.IdPortenLoginEnabled)
+	uc.LocalLoginEnabled = types.BoolValue(clientDto.LocalLoginEnabled)
+	uc.ElviaADLoginEnabled = types.BoolValue(clientDto.ElviaADLoginEnabled)
+	uc.TestUserLoginEnabled = types.BoolValue(clientDto.TestUserLoginEnabled)
+	uc.RequireClientSecret = types.BoolValue(clientDto.RequireClientSecret)
+	uc.AccessTokenLifetime = types.Int64Value(int64(clientDto.AccessTokenLifetime))
+	uc.AlwaysIncludeUserClaimsInIdToken = types.BoolValue(clientDto.AlwaysIncludeUserClaimsInIdToken)
+	uc.ClientNameLanguageKey = types.StringValue(clientDto.ClientNameLanguageKey)
+	uc.AllowUseOfRefreshTokens = types.BoolValue(clientDto.AllowUseOfRefreshTokens)
+	uc.OneTimeUsageForRefreshTokens = types.BoolValue(clientDto.OneTimeUsageForRefreshTokens)
+	uc.RefreshTokensLifeTime = types.Int64Value(int64(clientDto.RefreshTokensLifeTime))
+	// uc.ClientId = types.StringValue(clientDto.ClientId)
+	// uc.Id = types.StringValue(strconv.Itoa(clientDto.Id))
 }
 
-func convertSetToStringArray(set types.Set) []string {
-	var result []string
-	for _, v := range set.Elements() {
-		result = append(result, v.(types.String).ValueString())
+func DtoFromClientPropertyResource(clientProperties []ClientPropertyResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientPropertyDto {
+	var clientPropertyDtos []elvidapiclient.ClientPropertyDto
+
+	if len(clientProperties) == 0 {
+		return []elvidapiclient.ClientPropertyDto{}
 	}
-	return result
+
+	for _, clientProperty := range clientProperties {
+		// Validate and process clientPropertyResource.Key
+		if clientProperty.Key.IsNull() || clientProperty.Key.IsUnknown() {
+			diagnostics.AddError(
+				"Invalid Client Property Key",
+				"Client property key must be provided and cannot be null or unknown.",
+			)
+			continue
+		}
+
+		// Initialize a slice to hold the values
+		var values []string
+
+		// Iterate over each value in clientPropertyResource.Values
+		for _, v := range clientProperty.Values {
+			if v.IsNull() || v.IsUnknown() {
+				diagnostics.AddWarning(
+					"Unknown or Null Value",
+					"One of the values in clientPropertyResource.Values is null or unknown and will be skipped.",
+				)
+				continue
+			}
+			values = append(values, v.ValueString())
+		}
+
+		// Empty list instead of nil for no elements
+		if values == nil {
+			values = []string{}
+		}
+
+		// Create a ClientProperty object
+		clientPropertyDto := elvidapiclient.ClientPropertyDto{
+			Key:    clientProperty.Key.ValueString(),
+			Values: values,
+		}
+
+		// Append the ClientProperty to the slice
+		clientPropertyDtos = append(clientPropertyDtos, clientPropertyDto)
+	}
+
+	return clientPropertyDtos
 }

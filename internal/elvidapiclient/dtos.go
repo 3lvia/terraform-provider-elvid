@@ -23,7 +23,7 @@ type UserClientDto struct {
 }
 
 type ClientPropertyDto struct {
-	Type   string   `json:"Key"`
+	Key    string   `json:"Key"`
 	Values []string `json:"Values"`
 }
 

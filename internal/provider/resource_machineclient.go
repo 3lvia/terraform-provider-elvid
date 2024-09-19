@@ -222,7 +222,7 @@ type ClientClaimResource struct {
 func (mc *MachineClientResource) DtoFromMachineClientResource(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClientDto {
 	return &elvidapiclient.MachineClientDto{
 		ClientName:           mc.Name.ValueString(),
-		Scopes:               convertSetToStringList(mc.Scopes),
+		Scopes:               convertSetToStringArray(mc.Scopes),
 		TestUserLoginEnabled: mc.TestUserLoginEnabled.ValueBool(),
 		AccessTokenLifeTime:  int(mc.AccessTokenLifeTime.ValueInt64()),
 		IsDelegationClient:   mc.IsDelegationClient.ValueBool(),
@@ -236,14 +236,6 @@ func (mc *MachineClientResource) MachineClientResourceFromDto(client *elvidapicl
 	mc.AccessTokenLifeTime = types.Int64Value(int64(client.AccessTokenLifeTime))
 	mc.IsDelegationClient = types.BoolValue(client.IsDelegationClient)
 	mc.ClientID = types.StringValue(client.ClientId)
-}
-
-func convertSetToStringList(set types.Set) []string {
-	var result []string
-	for _, v := range set.Elements() {
-		result = append(result, v.(types.String).ValueString())
-	}
-	return result
 }
 
 func DtoFromClientClaimResource(clientClaims []ClientClaimResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientClaimDto {
