@@ -142,21 +142,22 @@ func (r *UserClientResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Default:     stringdefault.StaticString("1"),
 				Description: "A change in value for this field will force recreating the resource",
 			},
-			// "client_properties": schema.SetNestedAttribute{
-			// 	Optional:    true,
-			// 	Description: "Used this to set other key-value(s) properties on a client. The allowed keys to set here must be whitelisted in elvid.",
-			// 	NestedObject: schema.NestedAttributeObject{
-			// 		Attributes: map[string]schema.Attribute{
-			// 			"type": schema.StringAttribute{
-			// 				Required: true,
-			// 			},
-			// 			"values": schema.SetAttribute{
-			// 				ElementType: types.StringType,
-			// 				Required:    true,
-			// 			},
-			// 		},
-			// 	},
-			// },
+		},
+		Blocks: map[string]schema.Block{
+			"client_properties": schema.SetNestedBlock{
+				Description: "Used this to set other key-value(s) properties on a client. ElvID has a whitelist of keys that are allowed to set here.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Required: true,
+						},
+						"values": schema.ListAttribute{
+							ElementType: types.StringType,
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -243,26 +244,31 @@ func (r *UserClientResource) Delete(ctx context.Context, req resource.DeleteRequ
 }
 
 type UserClientResource struct {
-	ID                               types.String `tfsdk:"id"`
-	ClientName                       types.String `tfsdk:"client_name"`
-	Scopes                           types.Set    `tfsdk:"scopes"`
-	Domains                          types.Set    `tfsdk:"domains"`
-	RedirectUriPaths                 types.Set    `tfsdk:"redirect_uri_paths"`
-	PostLogoutRedirectUriPaths       types.Set    `tfsdk:"post_logout_redirect_uri_paths"`
-	IdPortenLoginEnabled             types.Bool   `tfsdk:"idporten_login_enabled"`
-	LocalLoginEnabled                types.Bool   `tfsdk:"local_login_enabled"`
-	ElviaADLoginEnabled              types.Bool   `tfsdk:"elvia_ad_login_enabled"`
-	TestUserLoginEnabled             types.Bool   `tfsdk:"test_user_login_enabled"`
-	RequireClientSecret              types.Bool   `tfsdk:"require_client_secret"`
-	AccessTokenLifetime              types.Int64  `tfsdk:"access_token_life_time"`
-	AlwaysIncludeUserClaimsInIdToken types.Bool   `tfsdk:"always_include_user_claims_in_id_token"`
-	ClientNameLanguageKey            types.String `tfsdk:"client_name_language_key"`
-	AllowUseOfRefreshTokens          types.Bool   `tfsdk:"allow_use_of_refresh_tokens"`
-	OneTimeUsageForRefreshTokens     types.Bool   `tfsdk:"one_time_usage_for_refresh_tokens"`
-	RefreshTokensLifeTime            types.Int64  `tfsdk:"refresh_token_life_time"`
-	ClientID                         types.String `tfsdk:"client_id"`
-	ResourceTaintVersion             types.String `tfsdk:"resource_taint_version"`
-	// ClientProperties                 types.Set    `tfsdk:"client_properties"`
+	ID                               types.String               `tfsdk:"id"`
+	ClientName                       types.String               `tfsdk:"client_name"`
+	Scopes                           types.Set                  `tfsdk:"scopes"`
+	Domains                          types.Set                  `tfsdk:"domains"`
+	RedirectUriPaths                 types.Set                  `tfsdk:"redirect_uri_paths"`
+	PostLogoutRedirectUriPaths       types.Set                  `tfsdk:"post_logout_redirect_uri_paths"`
+	IdPortenLoginEnabled             types.Bool                 `tfsdk:"idporten_login_enabled"`
+	LocalLoginEnabled                types.Bool                 `tfsdk:"local_login_enabled"`
+	ElviaADLoginEnabled              types.Bool                 `tfsdk:"elvia_ad_login_enabled"`
+	TestUserLoginEnabled             types.Bool                 `tfsdk:"test_user_login_enabled"`
+	RequireClientSecret              types.Bool                 `tfsdk:"require_client_secret"`
+	AccessTokenLifetime              types.Int64                `tfsdk:"access_token_life_time"`
+	AlwaysIncludeUserClaimsInIdToken types.Bool                 `tfsdk:"always_include_user_claims_in_id_token"`
+	ClientNameLanguageKey            types.String               `tfsdk:"client_name_language_key"`
+	AllowUseOfRefreshTokens          types.Bool                 `tfsdk:"allow_use_of_refresh_tokens"`
+	OneTimeUsageForRefreshTokens     types.Bool                 `tfsdk:"one_time_usage_for_refresh_tokens"`
+	RefreshTokensLifeTime            types.Int64                `tfsdk:"refresh_token_life_time"`
+	ClientID                         types.String               `tfsdk:"client_id"`
+	ResourceTaintVersion             types.String               `tfsdk:"resource_taint_version"`
+	ClientProperties                 []ClientPropertiesResource `tfsdk:"client_properties"`
+}
+
+type ClientPropertiesResource struct {
+	Type   types.String   `tfsdk:"type"`
+	Values []types.String `tfsdk:"values"`
 }
 
 func (uc *UserClientResource) ToElvidApiClientInput() *elvidapiclient.UserClient {
@@ -283,7 +289,7 @@ func (uc *UserClientResource) ToElvidApiClientInput() *elvidapiclient.UserClient
 		AllowUseOfRefreshTokens:          uc.AllowUseOfRefreshTokens.ValueBool(),
 		OneTimeUsageForRefreshTokens:     uc.OneTimeUsageForRefreshTokens.ValueBool(),
 		RefreshTokensLifeTime:            int(uc.RefreshTokensLifeTime.ValueInt64()),
-		// ClientProperties:                 convertSetToClientProperties(uc.ClientProperties),
+		ClientProperties:                 []elvidapiclient.ClientProperty{}, //convertSetToClientProperties(uc.ClientProperties),
 	}
 }
 
