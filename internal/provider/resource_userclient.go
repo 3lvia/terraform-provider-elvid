@@ -298,10 +298,10 @@ func (uc *UserClientResource) DtoFromUserClientResource(diagnostics diag.Diagnos
 
 func (uc *UserClientResource) UserClientResourceFromDto(clientDto *elvidapiclient.UserClientDto) {
 	uc.ClientName = types.StringValue(clientDto.ClientName)
-	// uc.Scopes = convertStringArrayToSet(client.Scopes)
-	// uc.Domains = convertStringArrayToSet(client.Domains)
-	// uc.RedirectUriPaths = convertStringArrayToSet(client.RedirectUriPaths)
-	// uc.PostLogoutRedirectUriPaths = convertStringArrayToSet(client.PostLogoutRedirectUriPaths)
+	uc.Scopes = convertStringArrayToSet(clientDto.Scopes)
+	uc.Domains = convertStringArrayToSet(clientDto.Domains)
+	uc.RedirectUriPaths = convertStringArrayToSet(clientDto.RedirectUriPaths)
+	uc.PostLogoutRedirectUriPaths = convertStringArrayToSet(clientDto.PostLogoutRedirectUriPaths)
 	uc.IdPortenLoginEnabled = types.BoolValue(clientDto.IdPortenLoginEnabled)
 	uc.LocalLoginEnabled = types.BoolValue(clientDto.LocalLoginEnabled)
 	uc.ElviaADLoginEnabled = types.BoolValue(clientDto.ElviaADLoginEnabled)
