@@ -74,15 +74,15 @@ func (p *ElvidProviderInput) Configure(ctx context.Context, req provider.Configu
 		runHashedSecretValidation = true
 	}
 
-	providerInput := &ElvidProviderInput{
+	elvidProviderInput := &ElvidProviderInput{
 		TenantId:                  config.TenantID.ValueString(),
 		AccessTokenAD:             accessTokenAD,
 		ElvIDAuthority:            elvidAuthority,
 		RunHashedSecretValidation: runHashedSecretValidation,
 	}
 
-	resp.DataSourceData = providerInput
-	resp.ResourceData = providerInput
+	resp.DataSourceData = elvidProviderInput
+	resp.ResourceData = elvidProviderInput
 }
 
 func getElvIDAuthority(overrideElvidAuthority string, environment string) string {
@@ -112,6 +112,7 @@ func (p *ElvidProviderInput) Resources(context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		NewMachineClientResource,
 		NewClientSecretResource,
+		NewUserClientResource,
 	}
 }
 
