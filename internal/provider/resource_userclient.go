@@ -309,10 +309,11 @@ func (uc *UserClientResource) UserClientResourceFromDto(clientDto *elvidapiclien
 	uc.RequireClientSecret = types.BoolValue(clientDto.RequireClientSecret)
 	uc.AccessTokenLifetime = types.Int64Value(int64(clientDto.AccessTokenLifetime))
 	uc.AlwaysIncludeUserClaimsInIdToken = types.BoolValue(clientDto.AlwaysIncludeUserClaimsInIdToken)
-	uc.ClientNameLanguageKey = types.StringValue(clientDto.ClientNameLanguageKey) // this caused problems
+	uc.ClientNameLanguageKey = types.StringValue(clientDto.ClientNameLanguageKey)
 	uc.AllowUseOfRefreshTokens = types.BoolValue(clientDto.AllowUseOfRefreshTokens)
 	uc.OneTimeUsageForRefreshTokens = types.BoolValue(clientDto.OneTimeUsageForRefreshTokens)
 	uc.RefreshTokensLifeTime = types.Int64Value(int64(clientDto.RefreshTokensLifeTime))
+	// ClientProperties is currently not read from the DTO, server drift will not be detected for this field.  Changes not triggered by terraform should not happen anyway.
 }
 
 func DtoFromClientPropertyResource(clientProperties []ClientPropertyResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientPropertyDto {

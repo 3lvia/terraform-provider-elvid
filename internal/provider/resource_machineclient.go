@@ -237,6 +237,7 @@ func (mc *MachineClientResource) MachineClientResourceFromDto(clientDto *elvidap
 	mc.IsDelegationClient = types.BoolValue(clientDto.IsDelegationClient)
 	mc.ClientId = types.StringValue(clientDto.ClientId)
 	mc.Scopes = convertStringArrayToSet(clientDto.Scopes)
+	// ClientClaims is currently not read from the DTO, drift will not be detected for this field. CThis should not happen anyway.
 }
 
 func DtoFromClientClaimResource(clientClaims []ClientClaimResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientClaimDto {
