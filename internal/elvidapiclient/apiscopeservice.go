@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -105,6 +106,7 @@ func DeleteApiScope(ctx context.Context, elvidAuthority string, accessTokenAD st
 	return diags
 }
 
+// TODO: Don't use terraform type in elvidapiclient
 type ApiScope struct {
 	Name                types.String `json:"Name"`
 	Description         types.String `json:"Description"`

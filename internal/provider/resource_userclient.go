@@ -170,7 +170,7 @@ func (r *UserClientResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	userClientInput := plan.ToElvidApiClientInput()
+	userClientInput := plan.DtoFromUserClientResource()
 	createdUserClient, err := elvidapiclient.CreateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating userclient resulted in an error", err.Error())
@@ -203,7 +203,7 @@ func (r *UserClientResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	state.FromElvidApiClient(userClient)
+	state.UserClientResourceFromDto(userClient)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -216,7 +216,7 @@ func (r *UserClientResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	userClientInput := plan.ToElvidApiClientInput()
+	userClientInput := plan.DtoFromUserClientResource()
 	userClientInput.Id, _ = strconv.Atoi(plan.ID.ValueString())
 
 	err := elvidapiclient.UpdateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientInput)
@@ -271,8 +271,8 @@ type ClientPropertiesResource struct {
 	Values []types.String `tfsdk:"values"`
 }
 
-func (uc *UserClientResource) ToElvidApiClientInput() *elvidapiclient.UserClient {
-	return &elvidapiclient.UserClient{
+func (uc *UserClientResource) DtoFromUserClientResource() *elvidapiclient.UserClientDto {
+	return &elvidapiclient.UserClientDto{
 		ClientName:                       uc.ClientName.ValueString(),
 		Scopes:                           convertSetToStringArray(uc.Scopes),
 		Domains:                          convertSetToStringArray(uc.Domains),
@@ -289,11 +289,11 @@ func (uc *UserClientResource) ToElvidApiClientInput() *elvidapiclient.UserClient
 		AllowUseOfRefreshTokens:          uc.AllowUseOfRefreshTokens.ValueBool(),
 		OneTimeUsageForRefreshTokens:     uc.OneTimeUsageForRefreshTokens.ValueBool(),
 		RefreshTokensLifeTime:            int(uc.RefreshTokensLifeTime.ValueInt64()),
-		ClientProperties:                 []elvidapiclient.ClientProperty{}, //convertSetToClientProperties(uc.ClientProperties),
+		ClientProperties:                 []elvidapiclient.ClientPropertyDto{}, //convertSetToClientProperties(uc.ClientProperties),
 	}
 }
 
-func (uc *UserClientResource) FromElvidApiClient(client *elvidapiclient.UserClient) {
+func (uc *UserClientResource) UserClientResourceFromDto(client *elvidapiclient.UserClientDto) {
 	uc.ClientName = types.StringValue(client.ClientName)
 	// uc.Scopes = convertStringArrayToSet(client.Scopes)
 	// uc.Domains = convertStringArrayToSet(client.Domains)

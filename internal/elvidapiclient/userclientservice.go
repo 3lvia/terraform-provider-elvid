@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 )
 
-func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClient) (*UserClient, error) {
+func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/userclient", elvidAuthority)
 	userClientAsJson, _ := json.Marshal(userClient)
 	response, err := PostRequest(apiUrl, accessTokenAD, userClientAsJson)
@@ -22,7 +22,7 @@ func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *U
 	data, _ := ioutil.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var createdUserClient UserClient
+	var createdUserClient UserClientDto
 	err = json.Unmarshal(data, &createdUserClient)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *U
 	return &createdUserClient, nil
 }
 
-func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*UserClient, error) {
+func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*UserClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/userclient/%s", elvidAuthority, id)
 
 	response, err := GetRequest(apiUrl, accessTokenAD)
@@ -51,7 +51,7 @@ func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*Us
 	data, _ := ioutil.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var userClient UserClient
+	var userClient UserClientDto
 	err = json.Unmarshal(data, &userClient)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*Us
 	return &userClient, nil
 }
 
-func UpdateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClient) error {
+func UpdateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClientDto) error {
 	apiUrl := fmt.Sprintf("%s/api/userclient", elvidAuthority)
 
 	userClientAsJson, _ := json.Marshal(userClient)
@@ -91,31 +91,4 @@ func DeleteUserClient(elvidAuthority string, accessTokenAD string, id string) er
 	}
 
 	return nil
-}
-
-type UserClient struct {
-	Id                               int              `json:"Id"`
-	ClientId                         string           `json:"ClientId"`
-	ClientName                       string           `json:"ClientName"`
-	Scopes                           []string         `json:"Scopes"`
-	Domains                          []string         `json:"Domains"`
-	RedirectUriPaths                 []string         `json:"RedirectUriPaths"`
-	PostLogoutRedirectUriPaths       []string         `json:"PostLogoutRedirectUriPaths"`
-	IdPortenLoginEnabled             bool             `json:"IdPortenLoginEnabled"`
-	LocalLoginEnabled                bool             `json:"LocalLoginEnabled"`
-	ElviaADLoginEnabled              bool             `json:"ElviaADLoginEnabled"`
-	TestUserLoginEnabled             bool             `json:"TestUserLoginEnabled"`
-	RequireClientSecret              bool             `json:"RequireClientSecret"`
-	AccessTokenLifetime              int              `json:"AccessTokenLifetime"`
-	AlwaysIncludeUserClaimsInIdToken bool             `json:"AlwaysIncludeUserClaimsInIdToken"`
-	ClientNameLanguageKey            string           `json:"ClientNameLanguageKey"`
-	AllowUseOfRefreshTokens          bool             `json:"AllowUseOfRefreshTokens"`
-	OneTimeUsageForRefreshTokens     bool             `json:"OneTimeUsageForRefreshTokens"`
-	RefreshTokensLifeTime            int              `json:"RefreshTokensLifeTime"`
-	ClientProperties                 []ClientProperty `json:"ClientProperties"`
-}
-
-type ClientProperty struct {
-	Type   string   `json:"Key"`
-	Values []string `json:"Values"`
 }

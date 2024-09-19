@@ -118,19 +118,19 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClientInput(ctx, resp.Diagnostics)
+	machineClientRequestDto := plan.DtoFromMachineClientResource(ctx, resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	machineClient, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
+	machineClientResponseDto, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating machineclient resulted in an error", err.Error())
 		return
 	}
 
-	plan.Id = types.StringValue(strconv.Itoa(machineClient.Id))
-	plan.ClientID = types.StringValue(machineClient.ClientId)
+	plan.Id = types.StringValue(strconv.Itoa(machineClientResponseDto.Id))
+	plan.ClientID = types.StringValue(machineClientResponseDto.ClientId)
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
 	diags = resp.State.Set(ctx, plan)
@@ -145,18 +145,18 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	machineClient, err := elvidapiclient.ReadMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	machineClientResponseDto, err := elvidapiclient.ReadMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading machineclient resulted in an error", err.Error())
 		return
 	}
 
-	if machineClient == nil {
+	if machineClientResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
-	state.FromElvidApiClient(machineClient)
+	state.MachineClientResourceFromDto(machineClientResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -169,14 +169,14 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	machineClientInput := plan.ToElvidApiClientInput(ctx, resp.Diagnostics)
+	machineClientRequestDto := plan.DtoFromMachineClientResource(ctx, resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	machineClientInput.Id, _ = strconv.Atoi(plan.Id.ValueString())
+	machineClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientInput)
+	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating machineclient resulted in an error", err.Error())
 		return
@@ -202,35 +202,35 @@ func (r *MachineClientResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 type MachineClientResource struct {
-	Id                   types.String           `tfsdk:"id"`
-	Name                 types.String           `tfsdk:"name"`
-	TestUserLoginEnabled types.Bool             `tfsdk:"test_user_login_enabled"`
-	IsDelegationClient   types.Bool             `tfsdk:"is_delegation_client"`
-	AccessTokenLifeTime  types.Int64            `tfsdk:"access_token_life_time"`
-	Scopes               types.Set              `tfsdk:"scopes"`
-	ClientID             types.String           `tfsdk:"client_id"`
-	ResourceTaintVersion types.String           `tfsdk:"resource_taint_version"`
-	TokenEndpoint        types.String           `tfsdk:"token_endpoint"`
-	ClientClaims         []ClientClaimsResource `tfsdk:"client_claims"`
+	Id                   types.String          `tfsdk:"id"`
+	Name                 types.String          `tfsdk:"name"`
+	TestUserLoginEnabled types.Bool            `tfsdk:"test_user_login_enabled"`
+	IsDelegationClient   types.Bool            `tfsdk:"is_delegation_client"`
+	AccessTokenLifeTime  types.Int64           `tfsdk:"access_token_life_time"`
+	Scopes               types.Set             `tfsdk:"scopes"`
+	ClientID             types.String          `tfsdk:"client_id"`
+	ResourceTaintVersion types.String          `tfsdk:"resource_taint_version"`
+	TokenEndpoint        types.String          `tfsdk:"token_endpoint"`
+	ClientClaims         []ClientClaimResource `tfsdk:"client_claims"`
 }
 
-type ClientClaimsResource struct {
+type ClientClaimResource struct {
 	Type   types.String   `tfsdk:"type"`
 	Values []types.String `tfsdk:"values"`
 }
 
-func (mc *MachineClientResource) ToElvidApiClientInput(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClient {
-	return &elvidapiclient.MachineClient{
+func (mc *MachineClientResource) DtoFromMachineClientResource(ctx context.Context, diagnostics diag.Diagnostics) *elvidapiclient.MachineClientDto {
+	return &elvidapiclient.MachineClientDto{
 		ClientName:           mc.Name.ValueString(),
 		Scopes:               convertSetToStringList(mc.Scopes),
 		TestUserLoginEnabled: mc.TestUserLoginEnabled.ValueBool(),
 		AccessTokenLifeTime:  int(mc.AccessTokenLifeTime.ValueInt64()),
 		IsDelegationClient:   mc.IsDelegationClient.ValueBool(),
-		ClientClaims:         mc.buildClientClaims(diagnostics),
+		ClientClaims:         DtoFromClientClaimResource(mc.ClientClaims, diagnostics),
 	}
 }
 
-func (mc *MachineClientResource) FromElvidApiClient(client *elvidapiclient.MachineClient) {
+func (mc *MachineClientResource) MachineClientResourceFromDto(client *elvidapiclient.MachineClientDto) {
 	mc.Name = types.StringValue(client.ClientName)
 	mc.TestUserLoginEnabled = types.BoolValue(client.TestUserLoginEnabled)
 	mc.AccessTokenLifeTime = types.Int64Value(int64(client.AccessTokenLifeTime))
@@ -246,16 +246,16 @@ func convertSetToStringList(set types.Set) []string {
 	return result
 }
 
-func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics) []elvidapiclient.ClientClaim {
-	var clientClaims []elvidapiclient.ClientClaim
+func DtoFromClientClaimResource(clientClaims []ClientClaimResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientClaimDto {
+	var clientClaimDtos []elvidapiclient.ClientClaimDto
 
-	if len(mc.ClientClaims) == 0 {
-		return []elvidapiclient.ClientClaim{}
+	if len(clientClaims) == 0 {
+		return []elvidapiclient.ClientClaimDto{}
 	}
 
-	for _, clientClaimResource := range mc.ClientClaims {
+	for _, clientClaim := range clientClaims {
 		// Validate and process clientClaimResource.Type
-		if clientClaimResource.Type.IsNull() || clientClaimResource.Type.IsUnknown() {
+		if clientClaim.Type.IsNull() || clientClaim.Type.IsUnknown() {
 			diagnostics.AddError(
 				"Invalid Client Claim Type",
 				"Client claim type must be provided and cannot be null or unknown.",
@@ -267,7 +267,7 @@ func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics)
 		var values []string
 
 		// Iterate over each value in clientClaimResource.Values
-		for _, v := range clientClaimResource.Values {
+		for _, v := range clientClaim.Values {
 			if v.IsNull() || v.IsUnknown() {
 				diagnostics.AddWarning(
 					"Unknown or Null Value",
@@ -284,14 +284,14 @@ func (mc *MachineClientResource) buildClientClaims(diagnostics diag.Diagnostics)
 		}
 
 		// Create a ClientClaim object
-		aclRule := elvidapiclient.ClientClaim{
-			Type:   clientClaimResource.Type.ValueString(),
+		clientClaimDto := elvidapiclient.ClientClaimDto{
+			Type:   clientClaim.Type.ValueString(),
 			Values: values,
 		}
 
 		// Append the ClientClaim to the slice
-		clientClaims = append(clientClaims, aclRule)
+		clientClaimDtos = append(clientClaimDtos, clientClaimDto)
 	}
 
-	return clientClaims
+	return clientClaimDtos
 }

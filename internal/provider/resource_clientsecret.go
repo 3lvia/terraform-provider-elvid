@@ -13,8 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var providerInput *ElvidProviderInput
-
 func NewClientSecretResource() resource.Resource {
 	return &ClientSecretResource{}
 }
@@ -79,15 +77,15 @@ func (r *ClientSecretResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	createdClientSecret, err := elvidapiclient.CreateClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, plan.ClientID.ValueString())
+	createdClientSecretDto, err := elvidapiclient.CreateClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, plan.ClientID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Creating clientsecret resulted in an error", err.Error())
 		return
 	}
 
-	plan.ID = types.StringValue(strconv.Itoa(createdClientSecret.Id))
-	plan.SecretValue = types.StringValue(createdClientSecret.Value)
-	plan.HashedValueStartsWith = types.StringValue(createdClientSecret.HashedValueStartsWith)
+	plan.ID = types.StringValue(strconv.Itoa(createdClientSecretDto.Id))
+	plan.SecretValue = types.StringValue(createdClientSecretDto.Value)
+	plan.HashedValueStartsWith = types.StringValue(createdClientSecretDto.HashedValueStartsWith)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -101,27 +99,27 @@ func (r *ClientSecretResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	clientSecret, err := elvidapiclient.ReadClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
+	clientSecretResponseDto, err := elvidapiclient.ReadClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading clientsecret resulted in an error", err.Error())
 		return
 	}
 
-	if clientSecret == nil {
+	if clientSecretResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
-	if clientSecret.Value == "" {
-		clientSecret.Value = state.SecretValue.ValueString()
+	if clientSecretResponseDto.Value == "" {
+		clientSecretResponseDto.Value = state.SecretValue.ValueString()
 	}
 
-	if providerInput.RunHashedSecretValidation && clientSecret.HashedValueStartsWith != state.HashedValueStartsWith.ValueString() {
+	if providerInput.RunHashedSecretValidation && clientSecretResponseDto.HashedValueStartsWith != state.HashedValueStartsWith.ValueString() {
 		resp.Diagnostics.AddError("HashedValueStartsWith has changed. Recreate secret with setting run_hashed_secret_validation = false in provider config", "")
 		return
 	}
 
-	state.FromElvidApiClientOutput(clientSecret)
+	state.ClientSecretResourceFromDto(clientSecretResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -152,7 +150,7 @@ type ClientSecretResource struct {
 	HashedValueStartsWith types.String `tfsdk:"hashed_value_starts_with"`
 }
 
-func (cs *ClientSecretResource) FromElvidApiClientOutput(clientSecret *elvidapiclient.ClientSecret) {
+func (cs *ClientSecretResource) ClientSecretResourceFromDto(clientSecret *elvidapiclient.ClientSecretDto) {
 	cs.HashedValueStartsWith = types.StringValue(clientSecret.HashedValueStartsWith)
 	cs.SecretValue = types.StringValue(clientSecret.Value)
 }
