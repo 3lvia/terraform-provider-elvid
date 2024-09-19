@@ -107,12 +107,13 @@ Terraform init will download the published library from terraform registry, but 
 go build; terraform apply -auto-approve;
 ```
 
-# Debugging
-Debugging the go-code when running from Terraform is not added to this repo. See [this guide if debugging should be considered](https://developer.hashicorp.com/terraform/plugin/sdkv2/guides/v2-upgrade-guide#support-for-debuggable-provider-binaries).
+# Debugging and logging
+It is possible to print debug info as warnings in diag.Diagnostics.
 
-It is possible to print debug info as warnings in diag.Diagnostics. This is used for ApiScope and MachineClient. It requires v2 of the SDK, and some rewrite of the resource definition, as in resource_apiscope.go/apiscopeservice.go. See [the upgrade guide for v2 of the SDK](https://www.terraform.io/docs/extend/guides/v2-upgrade-guide.html). Terraform-privider-elvid already uses v2, but v2 also supports the v1 way.
+Regular logging is now supported: https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-logging
+Debugging is now supported (but not tested by us): https://developer.hashicorp.com/terraform/plugin/framework/debugging
 
-For resources/services that is not yet rewritten to v2 (but still use error and Create instead of CreateContext), debugging can be done by writing a file with debug messages:
+Some debugging can be done by writing a file with debug messages:
 
 ```
 # for a string 

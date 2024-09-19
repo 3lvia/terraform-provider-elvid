@@ -39,7 +39,10 @@ func (r *ClientSecretResource) Schema(_ context.Context, _ resource.SchemaReques
 				},
 			},
 			"client_id": schema.StringAttribute{
-				Required:    true,
+				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 				Description: "The (entity) id of the client. Note that this should be set to client.id and not client.client_id",
 			},
 			"resource_taint_version": schema.StringAttribute{
@@ -124,7 +127,7 @@ func (r *ClientSecretResource) Read(ctx context.Context, req resource.ReadReques
 }
 
 func (r *ClientSecretResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	panic("unimplemented")
+	resp.Diagnostics.AddError("Update client secret should never happen, as all property changes causes recreate", "")
 }
 
 func (r *ClientSecretResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
