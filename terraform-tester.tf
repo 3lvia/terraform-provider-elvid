@@ -35,7 +35,7 @@ resource "elvid_userclient" "userclient" {
   elvia_ad_login_enabled                 = true
   test_user_login_enabled                = false
   require_client_secret                  = false
-  access_token_life_time                 = 3598
+  access_token_life_time                 = 3591
   always_include_user_claims_in_id_token = true
   client_name_language_key               = null
   allow_use_of_refresh_tokens            = false
@@ -49,21 +49,21 @@ resource "elvid_userclient" "userclient" {
 
 ## Machine client
 
-resource "elvid_machineclient" "machineclient10" {
-  name                    = "2024-09-16"
-  test_user_login_enabled = true
-  access_token_life_time  = 3512
-  scopes                  = ["elvid.verifydeployment"]
-  resource_taint_version  = "4"
-  client_claims {
-    type   = "client_dna_topics_read12"
-    values = ["topicA", "topicB", "C"]
-  }
-  # client_claims {
-  #   type   = "client_edna_topics_write"
-  #   values = ["topicA", "topicB", "D"]
-  # }
-}
+# resource "elvid_machineclient" "machineclient10" {
+#   name                    = "2024-09-16"
+#   test_user_login_enabled = true
+#   access_token_life_time  = 3512
+#   scopes                  = ["elvid.verifydeployment"]
+#   resource_taint_version  = "4"
+#   client_claims {
+#     type   = "client_dna_topics_read12"
+#     values = ["topicA", "topicB", "C"]
+#   }
+#   # client_claims {
+#   #   type   = "client_edna_topics_write"
+#   #   values = ["topicA", "topicB", "D"]
+#   # }
+# }
 
 # resource "elvid_clientsecret" "clientsecret" {
 #   client_id              = elvid_machineclient.machineclient10.id

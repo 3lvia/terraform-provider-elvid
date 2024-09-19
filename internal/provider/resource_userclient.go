@@ -107,6 +107,8 @@ func (r *UserClientResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"client_name_language_key": schema.StringAttribute{
 				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Description: "Use this to get a language dependent separate name for the client. That name could be used instead of the client name in places like the BackToClient-button that is showed for an signed in user in elvid. Note that a corresponding key/value for 'ClientName{client_name_language_key}' must also exist in elvid's language files. Eg language.nb.json --> key: 'ClientNameMinSide', value: 'MinSide'",
 			},
 			"allow_use_of_refresh_tokens": schema.BoolAttribute{
@@ -307,12 +309,10 @@ func (uc *UserClientResource) UserClientResourceFromDto(clientDto *elvidapiclien
 	uc.RequireClientSecret = types.BoolValue(clientDto.RequireClientSecret)
 	uc.AccessTokenLifetime = types.Int64Value(int64(clientDto.AccessTokenLifetime))
 	uc.AlwaysIncludeUserClaimsInIdToken = types.BoolValue(clientDto.AlwaysIncludeUserClaimsInIdToken)
-	uc.ClientNameLanguageKey = types.StringValue(clientDto.ClientNameLanguageKey)
+	uc.ClientNameLanguageKey = types.StringValue(clientDto.ClientNameLanguageKey) // this caused problems
 	uc.AllowUseOfRefreshTokens = types.BoolValue(clientDto.AllowUseOfRefreshTokens)
 	uc.OneTimeUsageForRefreshTokens = types.BoolValue(clientDto.OneTimeUsageForRefreshTokens)
 	uc.RefreshTokensLifeTime = types.Int64Value(int64(clientDto.RefreshTokensLifeTime))
-	// uc.ClientId = types.StringValue(clientDto.ClientId)
-	// uc.Id = types.StringValue(strconv.Itoa(clientDto.Id))
 }
 
 func DtoFromClientPropertyResource(clientProperties []ClientPropertyResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientPropertyDto {

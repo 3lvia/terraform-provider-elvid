@@ -130,7 +130,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	plan.Id = types.StringValue(strconv.Itoa(machineClientResponseDto.Id))
-	plan.ClientID = types.StringValue(machineClientResponseDto.ClientId)
+	plan.ClientId = types.StringValue(machineClientResponseDto.ClientId)
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
 	diags = resp.State.Set(ctx, plan)
@@ -208,7 +208,7 @@ type MachineClientResource struct {
 	IsDelegationClient   types.Bool            `tfsdk:"is_delegation_client"`
 	AccessTokenLifeTime  types.Int64           `tfsdk:"access_token_life_time"`
 	Scopes               types.Set             `tfsdk:"scopes"`
-	ClientID             types.String          `tfsdk:"client_id"`
+	ClientId             types.String          `tfsdk:"client_id"`
 	ResourceTaintVersion types.String          `tfsdk:"resource_taint_version"`
 	TokenEndpoint        types.String          `tfsdk:"token_endpoint"`
 	ClientClaims         []ClientClaimResource `tfsdk:"client_claims"`
@@ -235,7 +235,7 @@ func (mc *MachineClientResource) MachineClientResourceFromDto(client *elvidapicl
 	mc.TestUserLoginEnabled = types.BoolValue(client.TestUserLoginEnabled)
 	mc.AccessTokenLifeTime = types.Int64Value(int64(client.AccessTokenLifeTime))
 	mc.IsDelegationClient = types.BoolValue(client.IsDelegationClient)
-	mc.ClientID = types.StringValue(client.ClientId)
+	mc.ClientId = types.StringValue(client.ClientId)
 }
 
 func DtoFromClientClaimResource(clientClaims []ClientClaimResource, diagnostics diag.Diagnostics) []elvidapiclient.ClientClaimDto {
