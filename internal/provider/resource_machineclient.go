@@ -123,7 +123,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	machineClientResponseDto, err := elvidapiclient.CreateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
+	machineClientResponseDto, err := elvidapiclient.CreateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating machineclient resulted in an error", err.Error())
 		return
@@ -145,7 +145,7 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	machineClientResponseDto, err := elvidapiclient.ReadMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	machineClientResponseDto, err := elvidapiclient.ReadMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading machineclient resulted in an error", err.Error())
 		return
@@ -176,7 +176,7 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 
 	machineClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	_, err := elvidapiclient.UpdateMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
+	_, err := elvidapiclient.UpdateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating machineclient resulted in an error", err.Error())
 		return
@@ -195,7 +195,7 @@ func (r *MachineClientResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	err := elvidapiclient.DeleteMachineClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	err := elvidapiclient.DeleteMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Deleting machineclient resulted in an error", err.Error())
 	}

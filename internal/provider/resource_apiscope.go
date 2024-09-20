@@ -90,7 +90,7 @@ func (r *ApiScopeResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	apiScopeRequestDto := plan.DtoFromApiScopeResource()
-	_, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
+	_, err := elvidapiclient.CreateOrUpdateApiScope(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating ApiScope resulted in an error", err.Error())
 		return
@@ -110,7 +110,7 @@ func (r *ApiScopeResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	apiScopeRequestDto := plan.DtoFromApiScopeResource()
-	_, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
+	_, err := elvidapiclient.CreateOrUpdateApiScope(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Update ApiScope resulted in an error", err.Error())
 		return
@@ -129,18 +129,18 @@ func (r *ApiScopeResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	apiScope, err := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	apiScopeResponseDto, err := elvidapiclient.ReadApiScope(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading ApiScope resulted in an error", err.Error())
 		return
 	}
 
-	if apiScope == nil {
+	if apiScopeResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
-	state.FromElvidApiClient(apiScope)
+	state.FromElvidApiClient(apiScopeResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -153,7 +153,7 @@ func (r *ApiScopeResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	err := elvidapiclient.DeleteApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	err := elvidapiclient.DeleteApiScope(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Deleting API scope resulted in an error", err.Error())
 	}

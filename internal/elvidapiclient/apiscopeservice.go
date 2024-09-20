@@ -1,13 +1,14 @@
 package elvidapiclient
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 )
 
-func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScopeDto *ApiScopeDto) (*ApiScopeDto, error) {
+func CreateOrUpdateApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, apiScopeDto *ApiScopeDto) (*ApiScopeDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope", elvidAuthority)
 
 	apiScopeAsJson, err := json.Marshal(apiScopeDto)
@@ -15,7 +16,7 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 		return nil, err
 	}
 
-	response, err := PostRequest(apiUrl, accessTokenAD, apiScopeAsJson)
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, apiScopeAsJson)
 	if err != nil {
 		return nil, err
 	}
@@ -36,16 +37,14 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 	return &apiScope, nil
 }
 
-func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*ApiScopeDto, error) {
+func ReadApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, name string) (*ApiScopeDto, error) {
 	if name == "" {
 		return nil, errors.New("no name provided in ReadApiScope")
 	}
 
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, name)
 
-	// diags.AddWarning("Calling ApiScope GET in ReadApiScope", "API url = "+apiUrl)
-
-	response, err := GetRequest(apiUrl, accessTokenAD)
+	response, err := GetRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return nil, err
@@ -72,12 +71,10 @@ func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*Ap
 	return &apiScope, nil
 }
 
-func DeleteApiScope(elvidAuthority string, accessTokenAD string, apiScopeName string) error {
+func DeleteApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, apiScopeName string) error {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, apiScopeName)
 
-	// diags.AddWarning("Calling ApiScope DELETE in DeleteApiScope", "API url = "+apiUrl)
-
-	response, err := DeleteRequest(apiUrl, accessTokenAD)
+	response, err := DeleteRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return err

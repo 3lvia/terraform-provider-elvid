@@ -1,15 +1,14 @@
 package elvidapiclient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strconv"
 )
 
-func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId string) (*ClientSecretDto, error) {
-	ioutil.WriteFile("logs/CreateClientSecret.text", []byte("someString"), 0644)
+func CreateClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string) (*ClientSecretDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret", elvidAuthority)
 
 	clientIdAsInt, _ := strconv.Atoi(clientId)
@@ -21,7 +20,7 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	if err != nil {
 		return nil, err
 	}
-	response, err := PostRequest(apiUrl, accessTokenAD, jsonValue)
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, jsonValue)
 
 	if err != nil {
 		return nil, err
@@ -43,10 +42,10 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	return &clientSecret, nil
 }
 
-func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) (*ClientSecretDto, error) {
+func ReadClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) (*ClientSecretDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret/%s/%s", elvidAuthority, clientId, clientSecretId)
 
-	response, err := GetRequest(apiUrl, accessTokenAD)
+	response, err := GetRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return nil, err
@@ -72,10 +71,10 @@ func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId stri
 	return &clientSecret, nil
 }
 
-func DeleteClientSecret(elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) error {
+func DeleteClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) error {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret/%s/%s", elvidAuthority, clientId, clientSecretId)
 
-	response, err := DeleteRequest(apiUrl, accessTokenAD)
+	response, err := DeleteRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return err

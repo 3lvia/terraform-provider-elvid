@@ -1,17 +1,18 @@
 package elvidapiclient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 )
 
-func CreateMachineClient(elvidAuthority string, accessTokenAD string, machineClientInput *MachineClientDto) (*MachineClientDto, error) {
+func CreateMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, machineClientInput *MachineClientDto) (*MachineClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/machineclient", elvidAuthority)
 
 	machineClientAsJson, _ := json.Marshal(machineClientInput)
 
-	response, err := PostRequest(apiUrl, accessTokenAD, machineClientAsJson)
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, machineClientAsJson)
 
 	if err != nil {
 		return nil, err
@@ -33,10 +34,10 @@ func CreateMachineClient(elvidAuthority string, accessTokenAD string, machineCli
 	return &machineClient, nil
 }
 
-func ReadMachineClient(elvidAuthority string, accessTokenAD string, id string) (*MachineClientDto, error) {
+func ReadMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) (*MachineClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/machineclient/%s", elvidAuthority, id)
 
-	response, err := GetRequest(apiUrl, accessTokenAD)
+	response, err := GetRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return nil, err
@@ -62,12 +63,12 @@ func ReadMachineClient(elvidAuthority string, accessTokenAD string, id string) (
 	return &machineClient, nil
 }
 
-func UpdateMachineClient(elvidAuthority string, accessTokenAD string, machineClient *MachineClientDto) (*MachineClientDto, error) {
+func UpdateMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, machineClient *MachineClientDto) (*MachineClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/machineclient", elvidAuthority)
 
 	machineClientAsJson, _ := json.Marshal(machineClient)
 
-	response, err := PatchRequest(apiUrl, accessTokenAD, machineClientAsJson)
+	response, err := PatchRequest(ctx, apiUrl, accessTokenAD, machineClientAsJson)
 
 	if err != nil {
 		return nil, err
@@ -89,10 +90,10 @@ func UpdateMachineClient(elvidAuthority string, accessTokenAD string, machineCli
 	return &machineClientResponse, nil
 }
 
-func DeleteMachineClient(elvidAuthority string, accessTokenAD string, id string) error {
+func DeleteMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {
 	apiUrl := fmt.Sprintf("%s/api/machineclient/%s", elvidAuthority, id)
 
-	response, err := DeleteRequest(apiUrl, accessTokenAD)
+	response, err := DeleteRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return err

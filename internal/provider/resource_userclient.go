@@ -174,7 +174,7 @@ func (r *UserClientResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	userClientRequestDto := plan.DtoFromUserClientResource(diags)
-	userClientResponseDto, err := elvidapiclient.CreateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
+	userClientResponseDto, err := elvidapiclient.CreateUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating userclient resulted in an error", err.Error())
 		return
@@ -195,7 +195,7 @@ func (r *UserClientResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	userClientResponseDto, err := elvidapiclient.ReadUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	userClientResponseDto, err := elvidapiclient.ReadUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading userclient resulted in an error", err.Error())
 		return
@@ -222,7 +222,7 @@ func (r *UserClientResource) Update(ctx context.Context, req resource.UpdateRequ
 	userClientRequestDto := plan.DtoFromUserClientResource(diags)
 	userClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	err := elvidapiclient.UpdateUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
+	err := elvidapiclient.UpdateUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating userclient resulted in an error", err.Error())
 		return
@@ -240,7 +240,7 @@ func (r *UserClientResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := elvidapiclient.DeleteUserClient(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	err := elvidapiclient.DeleteUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Deleting userclient resulted in an error", err.Error())
 	}

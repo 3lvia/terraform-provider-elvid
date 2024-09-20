@@ -77,7 +77,7 @@ func (r *ClientSecretResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	createdClientSecretDto, err := elvidapiclient.CreateClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, plan.ClientID.ValueString())
+	createdClientSecretDto, err := elvidapiclient.CreateClientSecret(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, plan.ClientID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Creating clientsecret resulted in an error", err.Error())
 		return
@@ -99,7 +99,7 @@ func (r *ClientSecretResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	clientSecretResponseDto, err := elvidapiclient.ReadClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
+	clientSecretResponseDto, err := elvidapiclient.ReadClientSecret(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Reading clientsecret resulted in an error", err.Error())
 		return
@@ -136,7 +136,7 @@ func (r *ClientSecretResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	err := elvidapiclient.DeleteClientSecret(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
+	err := elvidapiclient.DeleteClientSecret(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.ClientID.ValueString(), state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Deleting clientsecret resulted in an error", err.Error())
 	}

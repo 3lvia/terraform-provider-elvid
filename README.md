@@ -107,22 +107,40 @@ Terraform init will download the published library from terraform registry, but 
 go build; terraform apply -auto-approve;
 ```
 
-# Debugging and logging
-It is possible to print debug info as warnings in diag.Diagnostics.
+# Logging and diagnostics
+Providers use Diagnostics to surface errors and warnings to Terraform.
+For debugging or informational purposes use logging instead.
 
-Regular logging is now supported: https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-logging
+ 
+More info about [diagnostics](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-logging).
+
+Regular logging can be done with tflog with methods for Debug, Info, Warn and Error.
+More info about [logging](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-logging).
+
+Example logging string
+```console
+	tflog.Warn(ctx, "foo bar")
+```
+
+Example logging object as json
+```console
+serialized, _ := json.Marshal(someObject)
+tflog.Warn(ctx, string(serialized))
+```
+
+If you don't se the logs locally, you probably need to change log level first.
+```console
+# Linux
+TF_LOG=INFO
+# Windows: 
+$Env:TF_LOG="INFO"
+```
+
+# Debugging
 Debugging is now supported (but not tested by us): https://developer.hashicorp.com/terraform/plugin/framework/debugging
 
-Some debugging can be done by writing a file with debug messages:
+Up til now we have only used logging to understand a run. 
 
-```
-# for a string 
-ioutil.WriteFile("custom-log.text", []byte(someString), 0644)
-
-# for an object
-serialized, _ := json.Marshal(someObject)
-ioutil.WriteFile("custom-log.text", []byte(serialized), 0644)
-```
 # Publish a new release
 ## Publish to Terraform Registry
 To publish to [registry.terraform.io/providers/3lvia/elvid](https://registry.terraform.io/providers/3lvia/elvid/latest) create a new github-release in this repo. 

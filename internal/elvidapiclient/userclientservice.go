@@ -1,15 +1,16 @@
 package elvidapiclient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 )
 
-func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
+func CreateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/userclient", elvidAuthority)
 	userClientAsJson, _ := json.Marshal(userClient)
-	response, err := PostRequest(apiUrl, accessTokenAD, userClientAsJson)
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, userClientAsJson)
 
 	if err != nil {
 		return nil, err
@@ -31,10 +32,10 @@ func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *U
 	return &createdUserClient, nil
 }
 
-func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*UserClientDto, error) {
+func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) (*UserClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/userclient/%s", elvidAuthority, id)
 
-	response, err := GetRequest(apiUrl, accessTokenAD)
+	response, err := GetRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return nil, err
@@ -60,11 +61,11 @@ func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*Us
 	return &userClient, nil
 }
 
-func UpdateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClientDto) error {
+func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) error {
 	apiUrl := fmt.Sprintf("%s/api/userclient", elvidAuthority)
 
 	userClientAsJson, _ := json.Marshal(userClient)
-	response, err := PatchRequest(apiUrl, accessTokenAD, userClientAsJson)
+	response, err := PatchRequest(ctx, apiUrl, accessTokenAD, userClientAsJson)
 
 	if err != nil {
 		return err
@@ -77,10 +78,10 @@ func UpdateUserClient(elvidAuthority string, accessTokenAD string, userClient *U
 	return nil
 }
 
-func DeleteUserClient(elvidAuthority string, accessTokenAD string, id string) error {
+func DeleteUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {
 	apiUrl := fmt.Sprintf("%s/api/userclient/%s", elvidAuthority, id)
 
-	response, err := DeleteRequest(apiUrl, accessTokenAD)
+	response, err := DeleteRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return err
