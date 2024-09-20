@@ -28,14 +28,12 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
 
 # Project structure
 * repo-root
+  * internal
+    * provider: classes for elvid-provider and resources (machineclient, userclient, clientsecret and apiscope)
+    * elvidapiclient: classes for getting AccessToken from AD and calling ElvID-api
   * terraform-tester.tf and versions.tf: Terraform files for manually testing the provider.
   * elvidapiclient: go class library for getting AccessToken from AD and calling ElvID-api
-  * main.go: Standard file, sets up serving of the provider by calling the Provider()-function.
-  * provider.go: Defines the provider schema (inputs to the provider), the mapping to resources, and the interface that is passed to resources
-  * resource_clientsecret.go: Defines the resource schema and methods for clientsecrets.
-  * resource_machineclient.go: Defines the resource schema and methods for machineclient.
-  * resource_userclient.go: Defines the resource schema and methods for userclient.
-  * resource_apiscope.go: Defines the resource schema and methods for apiscope.
+  * main.go: Standard file, sets up serving of the provider.
 
 # Setup terraform for running locally
 ## Setup dev overrides to target local build of the provider
