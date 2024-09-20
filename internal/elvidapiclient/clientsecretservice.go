@@ -1,13 +1,14 @@
 package elvidapiclient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strconv"
 )
 
-func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId string) (*ClientSecret, error) {
+func CreateClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string) (*ClientSecretDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret", elvidAuthority)
 
 	clientIdAsInt, _ := strconv.Atoi(clientId)
@@ -16,7 +17,10 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	}
 
 	jsonValue, err := json.Marshal(values)
-	response, err := PostRequest(apiUrl, accessTokenAD, jsonValue)
+	if err != nil {
+		return nil, err
+	}
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, jsonValue)
 
 	if err != nil {
 		return nil, err
@@ -26,10 +30,10 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var clientSecret ClientSecret
+	var clientSecret ClientSecretDto
 	err = json.Unmarshal(data, &clientSecret)
 	if err != nil {
 		return nil, err
@@ -38,13 +42,12 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	return &clientSecret, nil
 }
 
-func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) (*ClientSecret, error) {
+func ReadClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) (*ClientSecretDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret/%s/%s", elvidAuthority, clientId, clientSecretId)
 
-	response, err := GetRequest(apiUrl, accessTokenAD)
+	response, err := GetRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
 		return nil, err
 	}
 
@@ -56,10 +59,10 @@ func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId stri
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var clientSecret ClientSecret
+	var clientSecret ClientSecretDto
 	err = json.Unmarshal(data, &clientSecret)
 	if err != nil {
 		return nil, err
@@ -68,10 +71,10 @@ func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId stri
 	return &clientSecret, nil
 }
 
-func DeleteClientSecret(elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) error {
+func DeleteClientSecret(ctx context.Context, elvidAuthority string, accessTokenAD string, clientId string, clientSecretId string) error {
 	apiUrl := fmt.Sprintf("%s/api/clientsecret/%s/%s", elvidAuthority, clientId, clientSecretId)
 
-	response, err := DeleteRequest(apiUrl, accessTokenAD)
+	response, err := DeleteRequest(ctx, apiUrl, accessTokenAD)
 
 	if err != nil {
 		return err
@@ -82,10 +85,4 @@ func DeleteClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	}
 
 	return nil
-}
-
-type ClientSecret struct {
-	Id                    int    `json:"Id"`
-	Value                 string `json:"SecretValue"`
-	HashedValueStartsWith string `json:"HashedValueStartsWith"`
 }

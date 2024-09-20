@@ -6,8 +6,9 @@ provider "elvid" {
   terraform_sp_client_id     = var.terraform_sp_client_id
   terraform_sp_client_secret = var.terraform_sp_client_secret
   environment                = var.environment
-  # override_elvid_authority   = "https://localhost:44383"
+  #override_elvid_authority   = "https://localhost:44383"
   override_elvid_authority = "https://elvid.dev-elvia.io"
+  run_hashed_secret_validation = true
 }
 
 provider "vault" {
@@ -34,12 +35,17 @@ provider "vault" {
 #   elvia_ad_login_enabled                 = true
 #   test_user_login_enabled                = false
 #   require_client_secret                  = false
-#   access_token_life_time                 = 3598
+#   access_token_life_time                 = 3591
 #   always_include_user_claims_in_id_token = true
 #   client_name_language_key               = null
 #   allow_use_of_refresh_tokens            = false
 #   one_time_usage_for_refresh_tokens      = true
 #   refresh_token_life_time                = 2592000
+#   resource_taint_version = "2"
+#   client_properties {
+#     key   = "ad_groups_filter"
+#     values = []
+#   }
 # }
 
 # output "userclient" {
@@ -49,28 +55,23 @@ provider "vault" {
 ## Machine client
 
 # resource "elvid_machineclient" "machineclient10" {
-#   name                    = "2024-06-08-6"
+#   name                    = "2024-09-16"
 #   test_user_login_enabled = true
-#   access_token_life_time  = 3511
-#   scopes                  = ["elvid.verifydeployment"]
-#   client_claims {
-#     type   = "client_dna_topics_read"
-#     values = ["topic1"]
-#   }
-#   client_claims {
-#     type   = "client_edna_topics_write"
-#     values = ["topicA", "topicB", "D"]
-#   }
-#   lifecycle {
-
-#     prevent_destroy = true
-
-#   }
+#   access_token_life_time  = 3512
+#   scopes                  = ["elvid.verifydeployment", "louvre.imageapi"]
+#   resource_taint_version  = "5"
+#   # client_claims {
+#   #   type   = "client_dna_topics_read12"
+#   #   values = ["topicA", "topicB", "C"]
+#   # }
+#   # client_claims {
+#   #   type   = "client_edna_topics_write"
+#   #   values = ["topicA", "topicB", "D"]
+#   # }
 # }
 
 # resource "elvid_clientsecret" "clientsecret" {
 #   client_id              = elvid_machineclient.machineclient10.id
-#   resource_taint_version = "2"
 # }
 
 # output "machineclient" {
@@ -87,33 +88,25 @@ provider "vault" {
 #     description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
 #     user_claims = ["email", "ad_groups"]
 #     allow_user_clients = true
+#     resource_taint_version = "3"
 # }
 
 ## Module userclient
 # module "elvid_userclient" {
-#   # # source  = "app.terraform.io/Elvia/userclient/elvid"
-#   source      = "C:\\3lvia\\terraform-elvid-userclient"
+#   source  = "app.terraform.io/Elvia/userclient/elvid"
+#   # source      = "C:\\3lvia\\terraform-elvid-userclient"
 #   environment = "dev"
-#   client_name = "test-bff"
+#   client_name = "test-userclient"
 #   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
 #   domains = var.domains[var.environment]
 #   redirect_uri_paths = [ "/silentcallback.html", "/oidc/callback"]
 #   post_logout_redirect_uri_paths = [""]
 #   elvia_ad_login_enabled         = true
 #   system_name      = "elvid"
-#   client_secret_enabled = true
+#   client_secret_enabled = false
 #   ad_groups_filter = ["test"]
-# }
-
-# module "elvid_userclient" {
-#   source      = "C:\\3lvia\\terraform-elvid-bff-userclient"
-#   environment = "dev"
-#   client_name = "test-bff"
-#   scopes = [ "louvre.imageapi.useraccess", "openid", "ad_groups"]
-#   domains = var.domains[var.environment]
-#   elvia_ad_login_enabled         = true
-#   system_name      = "elvid"
-#   ad_groups_filter = ["test"]
+#   allow_use_of_refresh_tokens = false
+#   one_time_usage_for_refresh_tokens  = false
 # }
 
 ## Module machineclient
@@ -123,7 +116,7 @@ provider "vault" {
 #   scopes = ["louvre.imageapi"]
 #   environment      = var.environment
 #   system_name      = "elvid"
-#   application_name = "demo-machineclient2"
+#   application_name = "test-machineclient"
 #   client_claims = [
 #     {
 #       type = "client_kafka_topic_read"
