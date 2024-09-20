@@ -24,24 +24,24 @@ provider "vault" {
 
 ## User client
 
-resource "elvid_userclient" "userclient" {
-  client_name                            = "test"
-  scopes                                 = ["louvre.imageapi.useraccess", "profile", "openid", "ad_groups"]
-  domains                                = var.domains[var.environment]
-  redirect_uri_paths                     = ["/callback.html"]
-  post_logout_redirect_uri_paths         = ["/index.htm"]
-  local_login_enabled                    = true
-  idporten_login_enabled                 = true
-  elvia_ad_login_enabled                 = true
-  test_user_login_enabled                = false
-  require_client_secret                  = false
-  access_token_life_time                 = 3591
-  always_include_user_claims_in_id_token = true
-  client_name_language_key               = null
-  allow_use_of_refresh_tokens            = false
-  one_time_usage_for_refresh_tokens      = true
-  refresh_token_life_time                = 2592000
-}
+# resource "elvid_userclient" "userclient" {
+#   client_name                            = "test"
+#   scopes                                 = ["louvre.imageapi.useraccess", "profile", "openid", "ad_groups"]
+#   domains                                = var.domains[var.environment]
+#   redirect_uri_paths                     = ["/callback.html"]
+#   post_logout_redirect_uri_paths         = ["/index.htm"]
+#   local_login_enabled                    = true
+#   idporten_login_enabled                 = true
+#   elvia_ad_login_enabled                 = true
+#   test_user_login_enabled                = false
+#   require_client_secret                  = false
+#   access_token_life_time                 = 3591
+#   always_include_user_claims_in_id_token = true
+#   client_name_language_key               = null
+#   allow_use_of_refresh_tokens            = false
+#   one_time_usage_for_refresh_tokens      = true
+#   refresh_token_life_time                = 2592000
+# }
 
 # output "userclient" {
 #   value = elvid_userclient.userclient
@@ -79,12 +79,12 @@ resource "elvid_userclient" "userclient" {
 # }
 
 ## API scope
-# resource "elvid_apiscope" "apiscope" {
-#     name = "terraform-provider-elvid-tester-apiscope"
-#     description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
-#     user_claims = ["email", "ad_groups"]
-#     allow_user_clients = true
-# }
+resource "elvid_apiscope" "apiscope" {
+    name = "terraform-provider-elvid-tester-apiscope"
+    description = "Scope opprettet fra test av Elvid Terraform provider (terraform-tester i terraform-provider-elvid)"
+    # user_claims = ["email", "ad_groups"]
+    allow_user_clients = true
+}
 
 ## Module userclient
 # module "elvid_userclient" {

@@ -3,7 +3,7 @@ package elvidapiclient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
@@ -19,7 +19,7 @@ func CreateUserClient(elvidAuthority string, accessTokenAD string, userClient *U
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var createdUserClient UserClientDto
@@ -48,7 +48,7 @@ func ReadUserClient(elvidAuthority string, accessTokenAD string, id string) (*Us
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var userClient UserClientDto

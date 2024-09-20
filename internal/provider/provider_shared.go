@@ -8,8 +8,13 @@ import (
 var providerInput *ElvidProviderInput
 
 func convertSetToStringArray(set types.Set) []string {
+	elements := set.Elements()
+	if len(elements) == 0 {
+		return []string{}
+	}
+
 	var result []string
-	for _, v := range set.Elements() {
+	for _, v := range elements {
 		result = append(result, v.(types.String).ValueString())
 	}
 	return result

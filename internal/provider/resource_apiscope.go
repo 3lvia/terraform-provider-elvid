@@ -4,10 +4,26 @@ import (
 	"context"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+func ApiScopeResourceSetup() resource.Resource {
+	return &ApiScopeResource{}
+}
+
+func (r *ApiScopeResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	if req.ProviderData != nil {
+		providerInput = req.ProviderData.(*ElvidProviderInput)
+	}
+}
 
 func (r *ApiScopeResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "elvid_apiscope"
@@ -16,9 +32,17 @@ func (r *ApiScopeResource) Metadata(_ context.Context, _ resource.MetadataReques
 func (r *ApiScopeResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"name": schema.StringAttribute{
-				Required:    true,
-				ForceNew:    true,
+				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 				Description: "The name of the API scope",
 			},
 			"description": schema.StringAttribute{
@@ -27,23 +51,30 @@ func (r *ApiScopeResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			},
 			"user_claims": schema.SetAttribute{
 				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
+				Default:     setdefault.StaticValue(types.SetValueMust(types.StringType, []attr.Value{})), // This means empty string set as default
 				Description: "User claims that are included in the token when logging in with a machine/user client that has this API scope. (The token will include the superset of claims from all granted scopes).",
 			},
 			"allow_machine_clients": schema.BoolAttribute{
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				Description: "Whether the API scope is intended for machine clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
 			},
 			"allow_user_clients": schema.BoolAttribute{
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				Description: "Whether the API scope is intended for user clients (allow_machine_clients and allow_user_clients are mutually exclusive, and one of them has to be true)",
 			},
 			"resource_taint_version": schema.StringAttribute{
-				Optional:    true,
-				ForceNew:    true,
-				Default:     "1",
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+				Default:     stringdefault.StaticString("1"),
 				Description: "A change in value for this field will force recreating the resource",
 			},
 		},
@@ -58,14 +89,34 @@ func (r *ApiScopeResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	apiScopeDto := plan.DtoFromApiScopeResource()
-	apiScope, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeDto)
+	apiScopeRequestDto := plan.DtoFromApiScopeResource()
+	_, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Creating ApiScope resulted in an error", err.Error())
 		return
 	}
 
-	plan.Id = types.StringValue(apiScope.Name)
+	plan.Id = types.StringValue(plan.Name.ValueString())
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+}
+
+func (r *ApiScopeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan ApiScopeResource
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiScopeRequestDto := plan.DtoFromApiScopeResource()
+	_, err := elvidapiclient.CreateOrUpdateApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, apiScopeRequestDto)
+	if err != nil {
+		resp.Diagnostics.AddError("Update ApiScope resulted in an error", err.Error())
+		return
+	}
+
+	plan.Id = types.StringValue(plan.Name.ValueString())
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -78,8 +129,9 @@ func (r *ApiScopeResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	apiScope, diag := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
-	if diag.HasError() {
+	apiScope, err := elvidapiclient.ReadApiScope(providerInput.ElvIDAuthority, providerInput.AccessTokenAD, state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Reading ApiScope resulted in an error", err.Error())
 		return
 	}
 

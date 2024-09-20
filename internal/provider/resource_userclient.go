@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func NewUserClientResource() resource.Resource {
+func UserClientResourceSetup() resource.Resource {
 	return &UserClientResource{}
 }
 

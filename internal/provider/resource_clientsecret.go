@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func NewClientSecretResource() resource.Resource {
+func ClientSecretResourceSetup() resource.Resource {
 	return &ClientSecretResource{}
 }
 

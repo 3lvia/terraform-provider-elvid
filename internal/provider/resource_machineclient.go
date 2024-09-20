@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func NewMachineClientResource() resource.Resource {
+func MachineClientResourceSetup() resource.Resource {
 	return &MachineClientResource{}
 }
 

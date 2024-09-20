@@ -3,11 +3,13 @@ package elvidapiclient
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strconv"
 )
 
 func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId string) (*ClientSecretDto, error) {
+	ioutil.WriteFile("logs/CreateClientSecret.text", []byte("someString"), 0644)
 	apiUrl := fmt.Sprintf("%s/api/clientsecret", elvidAuthority)
 
 	clientIdAsInt, _ := strconv.Atoi(clientId)
@@ -16,6 +18,9 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 	}
 
 	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		return nil, err
+	}
 	response, err := PostRequest(apiUrl, accessTokenAD, jsonValue)
 
 	if err != nil {
@@ -26,7 +31,7 @@ func CreateClientSecret(elvidAuthority string, accessTokenAD string, clientId st
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var clientSecret ClientSecretDto
@@ -44,7 +49,6 @@ func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId stri
 	response, err := GetRequest(apiUrl, accessTokenAD)
 
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
 		return nil, err
 	}
 
@@ -56,7 +60,7 @@ func ReadClientSecret(elvidAuthority string, accessTokenAD string, clientId stri
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var clientSecret ClientSecretDto

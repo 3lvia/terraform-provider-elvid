@@ -2,19 +2,20 @@ package elvidapiclient
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"io"
 )
 
 func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScopeDto *ApiScopeDto) (*ApiScopeDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope", elvidAuthority)
 
-	apiScopeAsJson, _ := json.Marshal(apiScopeDto)
+	apiScopeAsJson, err := json.Marshal(apiScopeDto)
+	if err != nil {
+		return nil, err
+	}
 
 	response, err := PostRequest(apiUrl, accessTokenAD, apiScopeAsJson)
-
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +24,7 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var apiScope ApiScopeDto
@@ -35,63 +36,56 @@ func CreateOrUpdateApiScope(elvidAuthority string, accessTokenAD string, apiScop
 	return &apiScope, nil
 }
 
-func ReadApiScope(elvidAuthority string, accessTokenAD string, name string, diags diag.Diagnostics) (*ApiScopeDto, diag.Diagnostics) {
+func ReadApiScope(elvidAuthority string, accessTokenAD string, name string) (*ApiScopeDto, error) {
 	if name == "" {
-		diags.AddError("No name provided in ReadApiScope", "")
-		return nil, diags
+		return nil, errors.New("no name provided in ReadApiScope")
 	}
 
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, name)
 
-	diags.AddWarning("Calling ApiScope GET in ReadApiScope", "API url = "+apiUrl)
+	// diags.AddWarning("Calling ApiScope GET in ReadApiScope", "API url = "+apiUrl)
 
 	response, err := GetRequest(apiUrl, accessTokenAD)
 
 	if err != nil {
-		diags.AddError("Error from ApiScope GET in ReadApiScope", err.Error())
-		return nil, diags
+		return nil, err
 	}
 
 	if response.StatusCode == 404 {
-		return nil, diags
+		return nil, nil
 	}
 
 	if response.StatusCode != 200 {
-		diags.AddError("ApiScope GET returned http error code in ReadApiScope", ElvidErrorResponse(response, apiUrl).Error())
-		return nil, diags
+		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
+	data, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	var apiScope ApiScopeDto
 	err = json.Unmarshal(data, &apiScope)
 
 	if err != nil {
-		diags.AddError("Could not parse ApiScope GET response as JSON in ReadApiScope", err.Error())
-		return nil, diags
+		return nil, err
 	}
 
-	return &apiScope, diags
+	return &apiScope, nil
 }
 
-func DeleteApiScope(elvidAuthority string, accessTokenAD string, apiScopeName string) diag.Diagnostics {
+func DeleteApiScope(elvidAuthority string, accessTokenAD string, apiScopeName string) error {
 	apiUrl := fmt.Sprintf("%s/api/ApiScope/%s", elvidAuthority, apiScopeName)
 
-	var diags diag.Diagnostics
-	diags.AddWarning("Calling ApiScope DELETE in DeleteApiScope", "API url = "+apiUrl)
+	// diags.AddWarning("Calling ApiScope DELETE in DeleteApiScope", "API url = "+apiUrl)
 
 	response, err := DeleteRequest(apiUrl, accessTokenAD)
 
 	if err != nil {
-		diags.AddError("Error from ApiScope DELETE in DeleteApiScope", err.Error())
-		return diags
+		return err
 	}
 
 	if response.StatusCode != 200 {
-		diags.AddError("ApiScope DELETE returned http error code in DeleteApiScope", ElvidErrorResponse(response, apiUrl).Error())
-		return diags
+		return ElvidErrorResponse(response, apiUrl)
 	}
 
-	return diags
+	return nil
 }

@@ -110,9 +110,10 @@ func (p *ElvidProviderInput) DataSources(context.Context) []func() datasource.Da
 // Resources implements provider.Provider.
 func (p *ElvidProviderInput) Resources(context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewMachineClientResource,
-		NewClientSecretResource,
-		NewUserClientResource,
+		MachineClientResourceSetup,
+		ClientSecretResourceSetup,
+		UserClientResourceSetup,
+		ApiScopeResourceSetup,
 	}
 }
 
