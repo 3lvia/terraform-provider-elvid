@@ -121,20 +121,20 @@ func (r *UserClientResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				Description: "This have no use if allow_use_of_refresh_tokens = false. When using a OneTime RefreshToken the token endpoint response includes a new RefreshToken that should be used for the next token request. Set this to false to get a reusable RefreshToken. For the field RefreshTokenUsage in the elvid DB 0 means ReUse and 1 means SingleUse.",
+				Description: "This has no use if allow_use_of_refresh_tokens = false. When using a OneTime RefreshToken the token endpoint response includes a new RefreshToken that should be used for the next token request. Set this to false to get a reusable RefreshToken. For the field RefreshTokenUsage in the elvid DB 0 means ReUse and 1 means SingleUse.",
 			},
 			"refresh_token_life_time": schema.Int64Attribute{
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(2592000),
-				Description: "This have no use if allow_use_of_refresh_tokens = false. Absolute number of seconds before a refresh token expires. Note that a refresh token can also be revoked. Default is 2592000 seconds (30 days), max is 31556926 seconds (1 year).",
+				Description: "This has no use if allow_use_of_refresh_tokens = false. Absolute number of seconds before a refresh token expires. Note that a refresh token can also be revoked. Default is 2592000 seconds (30 days), max is 31556926 seconds (1 year).",
 			},
 			"client_id": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
-				Description: "The cliend_id of the client, used during client_credentials auth. Note this is different from the (entity) id of the client",
+				Description: "The client_id of the client, used during client_credentials auth. Note this is different from the (entity) id of the client",
 			},
 			"resource_taint_version": schema.StringAttribute{
 				Optional: true,
@@ -148,7 +148,7 @@ func (r *UserClientResource) Schema(_ context.Context, _ resource.SchemaRequest,
 		},
 		Blocks: map[string]schema.Block{
 			"client_properties": schema.SetNestedBlock{
-				Description: "Used this to set other key-value(s) properties on a client. ElvID has a whitelist of keys that are allowed to set here.",
+				Description: "Use this to set other key-value(s) properties on a client. ElvID has a whitelist of keys that are allowed to set here.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"key": schema.StringAttribute{

@@ -47,13 +47,13 @@ func (r *MachineClientResource) Schema(_ context.Context, _ resource.SchemaReque
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				Description: "When this is enabled it's possible to mechanically login with a test user to this client. This is done by using grant-type password for the token endpoint. See ElvID space on confluence for details",
+				Description: "When this is enabled it's possible to login with a test user to this client without using GUI. This is done by using grant-type password for the token endpoint. See ElvID space on confluence for details",
 			},
 			"is_delegation_client": schema.BoolAttribute{
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				Description: "When this is enabled the client can only use the delegation grant type. This is used when a already logged inn user will create a long-lived delegation access_token",
+				Description: "When this is enabled the client can only use the delegation grant type. This is used when an already logged in user will create a long-lived delegation access_token",
 			},
 			"access_token_life_time": schema.Int64Attribute{
 				Optional:    true,

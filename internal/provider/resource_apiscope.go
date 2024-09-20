@@ -54,7 +54,7 @@ func (r *ApiScopeResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				Computed:    true,
 				ElementType: types.StringType,
 				Default:     setdefault.StaticValue(types.SetValueMust(types.StringType, []attr.Value{})), // This means empty string set as default
-				Description: "User claims that are included in the token when logging in with a machine/user client that has this API scope. (The token will include the superset of claims from all granted scopes).",
+				Description: "User claims that are included in the token when logging in with a machine/user client that has this API scope. (The token will include the super set of claims from all granted scopes).",
 			},
 			"allow_machine_clients": schema.BoolAttribute{
 				Optional:    true,
