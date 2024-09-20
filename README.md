@@ -115,7 +115,7 @@ More info about [logging](https://developer.hashicorp.com/terraform/tutorials/pr
 
 Example logging string
 ```console
-	tflog.Warn(ctx, "Some message to be logged")
+tflog.Warn(ctx, "Some message to be logged")
 ```
 
 Example logging object as json
