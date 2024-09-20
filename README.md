@@ -18,7 +18,7 @@ See [here](https://learn.hashicorp.com/collections/terraform/providers) for the 
 
 # Local Setup
 ## Install go
-[Golang installation guide](https://golang.org/doc/install)
+[Go installation guide](https://golang.org/doc/install)
 
 ## Install terraform
 [Install terraform](https://learn.hashicorp.com/terraform/getting-started/install.html). For Windows, you can add terraform.exe to {user}/bin. Make sure %USERPROFILE%\go\bin is in path, and above the go-specific paths.
@@ -29,7 +29,7 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-elvid
 # Project structure
 * repo-root
   * terraform-tester.tf and versions.tf: Terraform files for manually testing the provider.
-  * elvidapiclient: go class-library for getting AccessToken from AD and calling ElvID-api
+  * elvidapiclient: go class library for getting AccessToken from AD and calling ElvID-api
   * main.go: Standard file, sets up serving of the provider by calling the Provider()-function.
   * provider.go: Defines the provider schema (inputs to the provider), the mapping to resources, and the interface that is passed to resources
   * resource_clientsecret.go: Defines the resource schema and methods for clientsecrets.
@@ -119,7 +119,7 @@ More info about [logging](https://developer.hashicorp.com/terraform/tutorials/pr
 
 Example logging string
 ```console
-	tflog.Warn(ctx, "foo bar")
+	tflog.Warn(ctx, "Some message to be logged")
 ```
 
 Example logging object as json
