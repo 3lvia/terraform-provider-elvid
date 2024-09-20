@@ -121,6 +121,8 @@ Example logging object as json
 serialized, _ := json.Marshal(someObject)
 tflog.Warn(ctx, string(serialized))
 ```
+## Change logging level to se logs
+To se Debug and Info logs in Terraform Enterprise: Start a new run --> Additional planning options --> Enable debugging mode
 
 If you don't se the logs locally, you probably need to change log level first.
 ```console
