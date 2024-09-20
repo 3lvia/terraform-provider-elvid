@@ -89,6 +89,9 @@ Make sure you have set up Terraform for running locally (described above)
 ```console
 # from repo-root
 terraform apply;
+
+# Similar with auto apply
+terraform apply -auto-approve;
 ```
 
 You should get a warning on plan / apply
@@ -101,16 +104,9 @@ You don't usually need to run terraform init because we are using dev_overrides.
 If you are working with modules, you might have to do terraform init (it will tell you when running plan or apply).
 Terraform init will download the published library from terraform registry, but the dev_overrides variant will still be used on plan/apply. 
 
-## Build and apply with one command
-```console
-# from repo-root
-go build; terraform apply -auto-approve;
-```
-
 # Logging and diagnostics
 Providers use Diagnostics to surface errors and warnings to Terraform.
 For debugging or informational purposes use logging instead.
-
  
 More info about [diagnostics](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-logging).
 
@@ -139,7 +135,7 @@ $Env:TF_LOG="INFO"
 # Debugging
 Debugging is now supported (but not tested by us): https://developer.hashicorp.com/terraform/plugin/framework/debugging
 
-Up til now we have only used logging to understand a run. 
+Up til now, we have only used logging to understand what is goin on during a run. 
 
 # Publish a new release
 ## Publish to Terraform Registry
