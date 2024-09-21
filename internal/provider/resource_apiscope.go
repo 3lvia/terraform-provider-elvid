@@ -47,6 +47,8 @@ func (r *ApiScopeResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			},
 			"description": schema.StringAttribute{
 				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Description: "A description of what this API scope is used for. Please include information about what it gives access to, and in what way it differs from similar API scopes, if any.",
 			},
 			"user_claims": schema.SetAttribute{
