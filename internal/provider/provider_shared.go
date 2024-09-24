@@ -38,3 +38,7 @@ func convertStringArrayToSet(array []string) types.Set {
 
 	return set
 }
+
+func ScopeApprovalWarning(id string) string {
+	return "Some scopes for this client is not approved. Please ask in #core-henvendelser for approval. Check here for cdetails: " + providerInput.ElvIDAuthority + "/Configuration/ClientDetails?client_Id=" + id
+}

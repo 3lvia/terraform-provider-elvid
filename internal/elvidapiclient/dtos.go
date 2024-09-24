@@ -20,6 +20,7 @@ type UserClientDto struct {
 	OneTimeUsageForRefreshTokens     bool                `json:"OneTimeUsageForRefreshTokens"`
 	RefreshTokensLifeTime            int                 `json:"RefreshTokensLifeTime"`
 	ClientProperties                 []ClientPropertyDto `json:"ClientProperties"`
+	IsAllScopesApproved              bool                `json:"IsAllScopesApproved"`
 }
 
 type ClientPropertyDto struct {
@@ -42,6 +43,7 @@ type MachineClientDto struct {
 	AccessTokenLifeTime  int              `json:"AccessTokenLifeTime"`
 	Scopes               []string         `json:"Scopes"`
 	ClientClaims         []ClientClaimDto `json:"ClientClaims"`
+	IsAllScopesApproved  bool             `json:"IsAllScopesApproved"`
 }
 
 type ClientClaimDto struct {

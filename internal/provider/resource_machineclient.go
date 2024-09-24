@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func MachineClientResourceSetup() resource.Resource {
@@ -133,6 +135,10 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	plan.ClientId = types.StringValue(machineClientResponseDto.ClientId)
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(ScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id)), "")
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -151,9 +157,16 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
+	serialized, _ := json.Marshal(machineClientResponseDto)
+	tflog.Warn(ctx, string(serialized))
+
 	if machineClientResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
+	}
+
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(ScopeApprovalWarning(state.Id.ValueString()), "")
 	}
 
 	state.MachineClientResourceFromDto(machineClientResponseDto)
@@ -176,10 +189,14 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 
 	machineClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	_, err := elvidapiclient.UpdateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
+	machineClientResponseDto, err := elvidapiclient.UpdateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating machineclient resulted in an error", err.Error())
 		return
+	}
+
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(ScopeApprovalWarning(plan.Id.ValueString()), "")
 	}
 
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")

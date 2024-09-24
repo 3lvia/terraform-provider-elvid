@@ -61,21 +61,30 @@ func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD st
 	return &userClient, nil
 }
 
-func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) error {
+func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
 	apiUrl := fmt.Sprintf("%s/api/userclient", elvidAuthority)
 
 	userClientAsJson, _ := json.Marshal(userClient)
 	response, err := PatchRequest(ctx, apiUrl, accessTokenAD, userClientAsJson)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if response.StatusCode != 200 {
-		return ElvidErrorResponse(response, apiUrl)
+		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	return nil
+	data, _ := io.ReadAll(response.Body)
+	defer response.Body.Close()
+
+	var updateUserClient UserClientDto
+	err = json.Unmarshal(data, &updateUserClient)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updateUserClient, nil
 }
 
 func DeleteUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {
