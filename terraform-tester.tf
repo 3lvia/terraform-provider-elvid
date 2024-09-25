@@ -54,21 +54,21 @@ provider "vault" {
 
 ## Machine client
 
-resource "elvid_machineclient" "machineclient10" {
-  name                    = "2024-09-23"
-  test_user_login_enabled = true
-  access_token_life_time  = 3522
-  scopes                  = ["elvid.verifydeployment", "louvre.imageapi"]
-  resource_taint_version  = "5"
-  # client_claims {
-  #   type   = "client_dna_topics_read12"
-  #   values = ["topicA", "topicB", "C"]
-  # }
-  # client_claims {
-  #   type   = "client_edna_topics_write"
-  #   values = ["topicA", "topicB", "D"]
-  # }
-}
+# resource "elvid_machineclient" "machineclient10" {
+#   name                    = "2024-09-23"
+#   test_user_login_enabled = true
+#   access_token_life_time  = 3522
+#   scopes                  = ["elvid.verifydeployment", "louvre.imageapi"]
+#   resource_taint_version  = "5"
+#   # client_claims {
+#   #   type   = "client_dna_topics_read12"
+#   #   values = ["topicA", "topicB", "C"]
+#   # }
+#   # client_claims {
+#   #   type   = "client_edna_topics_write"
+#   #   values = ["topicA", "topicB", "D"]
+#   # }
+# }
 
 # resource "elvid_clientsecret" "clientsecret" {
 #   client_id              = elvid_machineclient.machineclient10.id

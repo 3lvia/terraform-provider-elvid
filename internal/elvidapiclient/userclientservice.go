@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 )
 
 func CreateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
@@ -20,19 +21,7 @@ func CreateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD 
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, readErr := io.ReadAll(response.Body)
-	defer response.Body.Close()
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var userClientResponseDto UserClientDto
-	err = json.Unmarshal(data, &userClientResponseDto)
-	if err != nil {
-		return nil, err
-	}
-
-	return &userClientResponseDto, nil
+	return responseAsUserClientDto(response)
 }
 
 func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) (*UserClientDto, error) {
@@ -52,19 +41,7 @@ func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD st
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, readErr := io.ReadAll(response.Body)
-	defer response.Body.Close()
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var userClientResponseDto UserClientDto
-	err = json.Unmarshal(data, &userClientResponseDto)
-	if err != nil {
-		return nil, err
-	}
-
-	return &userClientResponseDto, nil
+	return responseAsUserClientDto(response)
 }
 
 func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
@@ -81,19 +58,7 @@ func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD 
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, readErr := io.ReadAll(response.Body)
-	defer response.Body.Close()
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var userClientResponseDto UserClientDto
-	err = json.Unmarshal(data, &userClientResponseDto)
-	if err != nil {
-		return nil, err
-	}
-
-	return &userClientResponseDto, nil
+	return responseAsUserClientDto(response)
 }
 
 func DeleteUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {
@@ -110,4 +75,20 @@ func DeleteUserClient(ctx context.Context, elvidAuthority string, accessTokenAD 
 	}
 
 	return nil
+}
+
+func responseAsUserClientDto(response *http.Response) (*UserClientDto, error) {
+	data, readErr := io.ReadAll(response.Body)
+	defer response.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	var userClientResponseDto UserClientDto
+	err := json.Unmarshal(data, &userClientResponseDto)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userClientResponseDto, nil
 }
