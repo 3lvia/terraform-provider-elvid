@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
@@ -15,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func MachineClientResourceSetup() resource.Resource {
@@ -136,7 +134,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id), machineClientResponseDto.ClientName), "During Create")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id), machineClientResponseDto.ClientName), "")
 	}
 
 	diags = resp.State.Set(ctx, plan)
@@ -163,7 +161,7 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), machineClientResponseDto.ClientName), "During Read")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), machineClientResponseDto.ClientName), "")
 	}
 
 	state.MachineClientResourceFromDto(machineClientResponseDto)
@@ -192,11 +190,8 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	serialized, _ := json.Marshal(machineClientResponseDto)
-	tflog.Error(ctx, "During update machineClientResponseDto: "+string(serialized))
-
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), machineClientResponseDto.ClientName), "During Update")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), machineClientResponseDto.ClientName), "")
 	}
 
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
