@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/3lvia/terraform-provider-elvid/internal/elvidapiclient"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func MachineClientResourceSetup() resource.Resource {
@@ -133,6 +135,10 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	plan.ClientId = types.StringValue(machineClientResponseDto.ClientId)
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id), machineClientResponseDto.ClientName), "During Create")
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -156,6 +162,10 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), machineClientResponseDto.ClientName), "During Read")
+	}
+
 	state.MachineClientResourceFromDto(machineClientResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -176,10 +186,17 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 
 	machineClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	_, err := elvidapiclient.UpdateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
+	machineClientResponseDto, err := elvidapiclient.UpdateMachineClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, machineClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating machineclient resulted in an error", err.Error())
 		return
+	}
+
+	serialized, _ := json.Marshal(machineClientResponseDto)
+	tflog.Error(ctx, "During update machineClientResponseDto: "+string(serialized))
+
+	if !machineClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), machineClientResponseDto.ClientName), "During Update")
 	}
 
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")

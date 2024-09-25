@@ -183,6 +183,10 @@ func (r *UserClientResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.Id = types.StringValue(strconv.Itoa(userClientResponseDto.Id))
 	plan.ClientId = types.StringValue(userClientResponseDto.ClientId)
 
+	if !userClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(userClientResponseDto.Id), userClientResponseDto.ClientName), "")
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -206,6 +210,10 @@ func (r *UserClientResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
+	if !userClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), userClientResponseDto.ClientName), "")
+	}
+
 	state.UserClientResourceFromDto(userClientResponseDto)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -222,10 +230,14 @@ func (r *UserClientResource) Update(ctx context.Context, req resource.UpdateRequ
 	userClientRequestDto := plan.DtoFromUserClientResource(diags)
 	userClientRequestDto.Id, _ = strconv.Atoi(plan.Id.ValueString())
 
-	err := elvidapiclient.UpdateUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
+	userClientResponseDto, err := elvidapiclient.UpdateUserClient(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, userClientRequestDto)
 	if err != nil {
 		resp.Diagnostics.AddError("Updating userclient resulted in an error", err.Error())
 		return
+	}
+
+	if !userClientResponseDto.IsAllScopesApproved {
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), userClientResponseDto.ClientName), "")
 	}
 
 	diags = resp.State.Set(ctx, plan)

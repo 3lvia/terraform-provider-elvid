@@ -6,8 +6,8 @@ provider "elvid" {
   terraform_sp_client_id     = var.terraform_sp_client_id
   terraform_sp_client_secret = var.terraform_sp_client_secret
   environment                = var.environment
-  #override_elvid_authority   = "https://localhost:44383"
-  override_elvid_authority = "https://elvid.dev-elvia.io"
+  override_elvid_authority   = "https://localhost:44383"
+  #override_elvid_authority = "https://elvid.dev-elvia.io"
   run_hashed_secret_validation = true
 }
 
@@ -55,9 +55,9 @@ provider "vault" {
 ## Machine client
 
 # resource "elvid_machineclient" "machineclient10" {
-#   name                    = "2024-09-16"
+#   name                    = "2024-09-23"
 #   test_user_login_enabled = true
-#   access_token_life_time  = 3512
+#   access_token_life_time  = 3522
 #   scopes                  = ["elvid.verifydeployment", "louvre.imageapi"]
 #   resource_taint_version  = "5"
 #   # client_claims {

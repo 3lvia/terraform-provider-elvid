@@ -38,3 +38,7 @@ func convertStringArrayToSet(array []string) types.Set {
 
 	return set
 }
+
+func MissingScopeApprovalWarning(id string, clientName string) string {
+	return "Scope approval is missing for " + clientName + ". Please request scope approval in the #core-henvendelser channel on Slack. For more information about this client, visit: " + providerInput.ElvIDAuthority + "/Configuration/ClientDetails?client_Id=" + id
+}
