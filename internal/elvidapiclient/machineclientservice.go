@@ -22,16 +22,20 @@ func CreateMachineClient(ctx context.Context, elvidAuthority string, accessToken
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var machineClient MachineClientDto
-	err = json.Unmarshal(data, &machineClient)
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	var machineClientResponseDto MachineClientDto
+	err = json.Unmarshal(data, &machineClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &machineClient, nil
+	return &machineClientResponseDto, nil
 }
 
 func ReadMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) (*MachineClientDto, error) {
@@ -51,16 +55,20 @@ func ReadMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	var machineClient MachineClientDto
-	err = json.Unmarshal(data, &machineClient)
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	var machineClientResponseDto MachineClientDto
+	err = json.Unmarshal(data, &machineClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &machineClient, nil
+	return &machineClientResponseDto, nil
 }
 
 func UpdateMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, machineClient *MachineClientDto) (*MachineClientDto, error) {
@@ -69,7 +77,6 @@ func UpdateMachineClient(ctx context.Context, elvidAuthority string, accessToken
 	machineClientAsJson, _ := json.Marshal(machineClient)
 
 	response, err := PatchRequest(ctx, apiUrl, accessTokenAD, machineClientAsJson)
-
 	if err != nil {
 		return nil, err
 	}
@@ -78,16 +85,19 @@ func UpdateMachineClient(ctx context.Context, elvidAuthority string, accessToken
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
 
-	var machineClientResponse MachineClientDto
-	err = json.Unmarshal(data, &machineClient)
+	var machineClientResponseDto MachineClientDto
+	err = json.Unmarshal(data, &machineClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &machineClientResponse, nil
+	return &machineClientResponseDto, nil
 }
 
 func DeleteMachineClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {

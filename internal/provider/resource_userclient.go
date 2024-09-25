@@ -184,7 +184,7 @@ func (r *UserClientResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.ClientId = types.StringValue(userClientResponseDto.ClientId)
 
 	if !userClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(strconv.Itoa(userClientResponseDto.Id)), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(userClientResponseDto.Id), userClientResponseDto.ClientName), "")
 	}
 
 	diags = resp.State.Set(ctx, plan)
@@ -211,7 +211,7 @@ func (r *UserClientResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	if !userClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(state.Id.ValueString()), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), userClientResponseDto.ClientName), "")
 	}
 
 	state.UserClientResourceFromDto(userClientResponseDto)
@@ -237,7 +237,7 @@ func (r *UserClientResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	if !userClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(plan.Id.ValueString()), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), userClientResponseDto.ClientName), "")
 	}
 
 	diags = resp.State.Set(ctx, plan)

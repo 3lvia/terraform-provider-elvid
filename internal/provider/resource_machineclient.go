@@ -136,7 +136,7 @@ func (r *MachineClientResource) Create(ctx context.Context, req resource.CreateR
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")
 
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id)), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(strconv.Itoa(machineClientResponseDto.Id), machineClientResponseDto.ClientName), "During Create")
 	}
 
 	diags = resp.State.Set(ctx, plan)
@@ -157,16 +157,13 @@ func (r *MachineClientResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	serialized, _ := json.Marshal(machineClientResponseDto)
-	tflog.Warn(ctx, string(serialized))
-
 	if machineClientResponseDto == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(state.Id.ValueString()), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(state.Id.ValueString(), machineClientResponseDto.ClientName), "During Read")
 	}
 
 	state.MachineClientResourceFromDto(machineClientResponseDto)
@@ -195,8 +192,11 @@ func (r *MachineClientResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
+	serialized, _ := json.Marshal(machineClientResponseDto)
+	tflog.Error(ctx, "During update machineClientResponseDto: "+string(serialized))
+
 	if !machineClientResponseDto.IsAllScopesApproved {
-		resp.Diagnostics.AddWarning(ScopeApprovalWarning(plan.Id.ValueString()), "")
+		resp.Diagnostics.AddWarning(MissingScopeApprovalWarning(plan.Id.ValueString(), machineClientResponseDto.ClientName), "During Update")
 	}
 
 	plan.TokenEndpoint = types.StringValue(providerInput.ElvIDAuthority + "/connect/token")

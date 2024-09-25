@@ -20,16 +20,19 @@ func CreateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD 
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
 
-	var createdUserClient UserClientDto
-	err = json.Unmarshal(data, &createdUserClient)
+	var userClientResponseDto UserClientDto
+	err = json.Unmarshal(data, &userClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &createdUserClient, nil
+	return &userClientResponseDto, nil
 }
 
 func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) (*UserClientDto, error) {
@@ -49,16 +52,19 @@ func ReadUserClient(ctx context.Context, elvidAuthority string, accessTokenAD st
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
 
-	var userClient UserClientDto
-	err = json.Unmarshal(data, &userClient)
+	var userClientResponseDto UserClientDto
+	err = json.Unmarshal(data, &userClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &userClient, nil
+	return &userClientResponseDto, nil
 }
 
 func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, userClient *UserClientDto) (*UserClientDto, error) {
@@ -75,16 +81,19 @@ func UpdateUserClient(ctx context.Context, elvidAuthority string, accessTokenAD 
 		return nil, ElvidErrorResponse(response, apiUrl)
 	}
 
-	data, _ := io.ReadAll(response.Body)
+	data, readErr := io.ReadAll(response.Body)
 	defer response.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
 
-	var updateUserClient UserClientDto
-	err = json.Unmarshal(data, &updateUserClient)
+	var userClientResponseDto UserClientDto
+	err = json.Unmarshal(data, &userClientResponseDto)
 	if err != nil {
 		return nil, err
 	}
 
-	return &updateUserClient, nil
+	return &userClientResponseDto, nil
 }
 
 func DeleteUserClient(ctx context.Context, elvidAuthority string, accessTokenAD string, id string) error {
