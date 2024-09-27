@@ -14,7 +14,7 @@ To implement this in your IdentityServer solution you also need to create the AP
 
 # General information about creating a custom terraform provider
 
-See [here](https://learn.hashicorp.com/collections/terraform/providers) for the general information about creating custom providers from Terraform.
+See [here](https://developer.hashicorp.com/terraform/plugin/framework) for the general information about creating custom providers from Terraform.
 
 # Local Setup
 ## Install go
