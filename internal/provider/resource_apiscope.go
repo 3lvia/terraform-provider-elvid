@@ -83,6 +83,41 @@ func (r *ApiScopeResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 	}
 }
 
+// ModifyPlan runs ElvID's server-side H2 validation against the planned values
+// at plan time, so naming-convention and AD-group-existence errors surface in
+// the PR's speculative plan instead of mid-apply on merge. We only validate on
+// create (state is null); updates and deletes go through their own checks at
+// apply. See ADR 2026-05-CORE-2650 (H2) in the elvid repo.
+func (r *ApiScopeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// Plan removal (delete) — nothing to validate.
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+	// Update — H2 only applies on create; server's validate endpoint no-ops if
+	// the scope name already exists, but skip the call entirely to keep plans fast
+	// and offline-resilient for the common case.
+	if !req.State.Raw.IsNull() {
+		return
+	}
+	// Provider not yet configured (e.g. terraform validate without auth) — skip
+	// the call rather than hard-fail; the apply will still enforce.
+	if providerInput == nil || providerInput.AccessTokenAD == "" {
+		return
+	}
+
+	var plan ApiScopeResource
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	dto := plan.DtoFromApiScopeResource()
+	if err := elvidapiclient.ValidateNewApiScope(ctx, providerInput.ElvIDAuthority, providerInput.AccessTokenAD, dto); err != nil {
+		resp.Diagnostics.AddError("ApiScope plan-time validation failed", err.Error())
+	}
+}
+
 func (r *ApiScopeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan ApiScopeResource
 	diags := req.Plan.Get(ctx, &plan)
