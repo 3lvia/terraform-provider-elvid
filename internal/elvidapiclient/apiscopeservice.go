@@ -37,6 +37,30 @@ func CreateOrUpdateApiScope(ctx context.Context, elvidAuthority string, accessTo
 	return &apiScope, nil
 }
 
+// ValidateNewApiScope dry-runs the create-time validation server-side without
+// persisting anything. Used by ApiScopeResource.ModifyPlan so naming-convention
+// and AD-group-existence errors surface in the speculative plan on a PR instead
+// of mid-apply on merge. See ADR 2026-05-CORE-2650 (H2) in the elvid repo.
+func ValidateNewApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, apiScopeDto *ApiScopeDto) error {
+	apiUrl := fmt.Sprintf("%s/api/ApiScope/validate", elvidAuthority)
+
+	apiScopeAsJson, err := json.Marshal(apiScopeDto)
+	if err != nil {
+		return err
+	}
+
+	response, err := PostRequest(ctx, apiUrl, accessTokenAD, apiScopeAsJson)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode == 200 {
+		return nil
+	}
+	return ElvidErrorResponse(response, apiUrl)
+}
+
 func ReadApiScope(ctx context.Context, elvidAuthority string, accessTokenAD string, name string) (*ApiScopeDto, error) {
 	if name == "" {
 		return nil, errors.New("no name provided in ReadApiScope")
