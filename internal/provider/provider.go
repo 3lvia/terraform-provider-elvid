@@ -37,7 +37,7 @@ func (p *ElvidProviderInput) Schema(_ context.Context, _ provider.SchemaRequest,
 			"terraform_sp_client_assertion": schema.StringAttribute{
 				Optional:    true,
 				Sensitive:   true,
-				Description: "An OIDC token issued to the run by its platform (Scalr, Terraform Cloud, GitHub Actions) that the service principal's app registration trusts as a federated identity credential. Exchanged for an Entra access token with client_assertion, so no client secret exists. Defaults to ARM_OIDC_TOKEN, or the contents of the file named by ARM_OIDC_TOKEN_FILE_PATH, the same variables the azurerm provider reads.",
+				Description: "An OIDC token issued to the run by its platform (Scalr, Terraform Cloud, GitHub Actions) that the service principal's app registration trusts as a federated identity credential. Exchanged for an Entra access token with client_assertion, so no client secret exists. Only used when terraform_sp_client_secret is empty; defaults to ARM_OIDC_TOKEN, or the contents of the file named by ARM_OIDC_TOKEN_FILE_PATH, the same variables the azurerm provider reads.",
 			},
 			"environment": schema.StringAttribute{
 				Required: true,
@@ -73,10 +73,16 @@ func (p *ElvidProviderInput) Configure(ctx context.Context, req provider.Configu
 
 	elvidAuthority := getElvIDAuthority(config.OverrideElvidAuthority.ValueString(), config.Environment.ValueString())
 
-	clientAssertion, err := resolveClientAssertion(config.TerraformSpClientAssertion.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Unable to read client assertion", err.Error())
-		return
+	// A configured secret always wins: TFC and Scalr set ARM_OIDC_TOKEN in every run with Azure OIDC enabled,
+	// and a consumer that still uses a secret must not start sending a token its app registration does not trust.
+	clientAssertion := ""
+	if config.TerraformSpClientSecret.ValueString() == "" {
+		var err error
+		clientAssertion, err = resolveClientAssertion(config.TerraformSpClientAssertion.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to read client assertion", err.Error())
+			return
+		}
 	}
 	if clientAssertion == "" && config.TerraformSpClientSecret.ValueString() == "" {
 		resp.Diagnostics.AddError("No credentials for the terraform service principal",
