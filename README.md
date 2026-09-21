@@ -70,6 +70,8 @@ tenant_id = "replaceme"
 elvid_dev_vault_role_id = "replaceme"
 ```
 
+`terraform_sp_client_secret` is optional: with a federated identity credential on the app registration the provider can log in with the run's OIDC token instead (`terraform_sp_client_assertion`, or `ARM_OIDC_TOKEN` / `ARM_OIDC_TOKEN_FILE_PATH`), see `docs/index.md`.
+
 Note that terraform.tfvars is added to .gitignore. Make sure to never publish these secrets. This is a public repository.
 
 # Running locally
