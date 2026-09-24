@@ -67,7 +67,6 @@ That will look something like
 terraform_sp_client_id = "replaceme"
 terraform_sp_client_secret = "replaceme"
 tenant_id = "replaceme"
-elvid_dev_vault_role_id = "replaceme"
 ```
 
 `terraform_sp_client_secret` is optional: with a federated identity credential on the app registration the provider can log in with the run's OIDC token instead (`terraform_sp_client_assertion`, or `ARM_OIDC_TOKEN` / `ARM_OIDC_TOKEN_FILE_PATH`), see `docs/index.md`.
@@ -84,7 +83,12 @@ go build
 ```
 
 ## Running Terraform locally
-Make sure you have set up Terraform for running locally (described above)
+Make sure you have set up Terraform for running locally (described above), and log in to Vault dev with your own user:
+
+```console
+export VAULT_ADDR=https://vault.dev-elvia.io
+vault login -method=oidc
+```
 
 ```console
 # from repo-root

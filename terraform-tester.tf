@@ -11,15 +11,9 @@ provider "elvid" {
   run_hashed_secret_validation = true
 }
 
+# Logs in with your own Vault token: run `vault login -method=oidc` against the address first.
 provider "vault" {
   address = "https://vault.dev-elvia.io"
-  auth_login {
-    path = "auth/approle/login"
-
-    parameters = {
-      role_id = var.elvid_dev_vault_role_id
-    }
-  }
 }
 
 ## User client
@@ -136,9 +130,6 @@ variable "terraform_sp_client_id" {
 }
 
 variable "terraform_sp_client_secret" {
-}
-
-variable "elvid_dev_vault_role_id" {
 }
 
 
